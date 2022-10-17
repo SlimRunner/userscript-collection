@@ -1,4 +1,4 @@
-# Desmos User-Scripts
+# User-Scripts
 
 This repository is a collection of user-scripts for my personal use to automate tasks in the web. If you find any of them useful, don't hesitate to install them.
 
