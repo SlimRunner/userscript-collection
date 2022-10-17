@@ -29,5 +29,5 @@ Once the extension is installed you can either navigate towards the respective s
 
 Either way you will be prompted by TamperMonkey to install the scripts. Click `install` or `reinstall` if you are updating. Once installed, you can periodically check for updates in TamperMonkey, and you will be served the latest changes from the master branch of this repository.
 
-[canvas-grades-highlighter]: /userscript-collection/canvas-lms-scripts/canvas-grades-highlighter.user.js
+[canvas-grades-highlighter]: /canvas-lms-scripts/canvas-grades-highlighter.user.js
 [cnvgradhighraw]: https://github.com/SlimRunner/desmos-scripts-addons/raw/master/desmovie-script/desmovie.user.js
