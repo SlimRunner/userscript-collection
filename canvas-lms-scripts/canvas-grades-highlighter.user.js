@@ -6,8 +6,8 @@
 // @description Adds color highlighting to grades on Canvas LMS
 // @grant       none
 // @match       https://ilearn.laccd.edu/courses/*/grades*
-// @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/canvas-grades-hightlighter.user.js
-// @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/canvas-grades-hightlighter.user.js
+// @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/canvas-grades-highlighter.user.js
+// @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/canvas-grades-highlighter.user.js
 // ==/UserScript==
 
 (function() {
