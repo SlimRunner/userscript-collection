@@ -6,10 +6,10 @@ The scripts in this collection are the following:
 
 #### [Canvas Learning Management System](https://www.instructure.com/canvas)
 1. **[Grades Highlighter][canvas-grades-highlighter]** — Adds a gradient of colors to the grade pages so that it's easy to identify at a glance in which assignments you did great and in which you did not-so-great. It looks like this:
-
 <p align="center">
   <img src="https://i.imgur.com/Kxp73sH.png" width="200" />
 </p>
+The gradient goes from green at perfect score (A grade) to red at 60% (F grade). If you have any amount of extra credit it is marked in blue.
 
 ## Getting Started
 
