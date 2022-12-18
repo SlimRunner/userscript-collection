@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-grades-hightlighter
 // @namespace   slidav.Desmos
-// @version     0.1.1
+// @version     0.1.2
 // @author      David Flores (aka SlimRunner)
 // @description Adds color highlighting to grades on Canvas LMS
 // @grant       none
@@ -51,7 +51,6 @@
         container: c[i]
       });
     }
-    console.table(out);
     return out;
   };
   
@@ -76,7 +75,6 @@
   
   // color suggestion https://www.desmos.com/calculator/sm17he77ir
   for (const unit of modules) {
-    console.log(unit);
     let [score, target] = [unit.score, unit.target];
     let colorGrading = "";
     if (isNaN(unit.score)) {
@@ -91,52 +89,6 @@
       colorGrading = `hsl(220,90%,85%)`;
     }
     unit.container.style.backgroundColor = colorGrading;
-  }
-
-  function getScorePair(scoreText, targetText) {
-    const SCORE_MATCH = /(?:\+?|-?)(?:\d+\.?\d*)%?$/;
-    const getFirstMatch = s => (s??['dummy text do not delete'])[0];
-    let score = getNumber(
-      getFirstMatch(scoreText.match(SCORE_MATCH))
-    );
-    let target = getNumber(
-      getFirstMatch(targetText.match(SCORE_MATCH))
-    );
-
-    if (target.value == null) return [null, null];
-
-    if (score.type === NT_PERCENT) {
-      score.value *= target.value / 100;
-      score.type = typeof 0;
-    }
-
-    return [
-      score.value,
-      target.value
-    ];
-  }
-
-  function getNumber(str) {
-    if (isNaN(str)) {
-      switch (true) {
-        case str.includes('%'):
-          return {
-            value: Number(str.replace('%', '')),
-            type: NT_PERCENT
-          };
-          break;
-        default:
-          return {
-            value: null,
-            type: null
-          };
-      }
-    } else {
-      return {
-        value: Number(str),
-        type: typeof 0
-      };
-    }
   }
 
   function seekParent(src, level) {
