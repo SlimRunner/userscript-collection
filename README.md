@@ -1,5 +1,7 @@
 # User-Scripts
 
+**tl;dr, scroll to the bottom for [installation links](#installation).**
+
 This repository is a collection of user-scripts for my personal use to automate tasks in the web. If you find any of them useful, don't hesitate to install them.
 
 The scripts in this collection are the following:
