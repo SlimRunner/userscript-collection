@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-grades-hightlighter
 // @namespace   slidav.Desmos
-// @version     0.1.0
+// @version     0.1.1
 // @author      David Flores (aka SlimRunner)
 // @description Adds color highlighting to grades on Canvas LMS
 // @grant       none
@@ -15,6 +15,7 @@
 
   const NT_PERCENT = 'percent';
   const F_RATIO = 5 / 2;
+  const TEXTNODE = 3;
   
   const querp = (a, b, c, t) => {
     let tinv = 1 - t;
@@ -35,49 +36,61 @@
   };
   
   const fq1 = (x) => querp(0, 0.5, 1, invQuerp(0, 0, 1, x));
-  
-  let myScore = document.body.querySelectorAll(
-    '.student_assignment.assignment_graded.editable .assignment_score .score_holder .grade'
-  );
-
-  let maxScore = document.body.querySelectorAll(
-    '.student_assignment.assignment_graded.editable .possible.points_possible'
-  );
-
-  let len = myScore.length;
-
-  if (maxScore.length === len) {
-    let str1, str2;
-    let score, target;
-    let delta;
-
-    for (let i = 0; i < len; ++i) {
-      [score, target] = getScorePair(
-        myScore[i].innerText.trim(),
-        maxScore[i].innerText.trim()
-      );
-      
-      // color suggestion https://www.desmos.com/calculator/sm17he77ir
-      if (target != null) {
-        if (score == null) {
-          seekParent(myScore[i], 3)
-            .style.backgroundColor = `#ccc`;
-        } else if (score < target) {
-          delta = (target - score) / target;
-          let h = 95 * fq1(1 - fq1(Math.min(Math.max(F_RATIO * delta, 0), 1)));
-          seekParent(myScore[i], 3)
-            .style.backgroundColor = `hsl(${h},90%,85%)`;
-        } else if (score === target) {
-          seekParent(myScore[i], 3)
-            .style.backgroundColor = `hsl(120,90%,85%)`;
-        } else {
-          seekParent(myScore[i], 3)
-            .style.backgroundColor = `hsl(220,90%,85%)`;
-        }
-      }
+  const texify = (elem) => {
+    return Array.from(elem.childNodes)
+      .filter(e => e.nodeType === 3)
+      .map(e => e.textContent.trim())
+      .reduce((ac, cu) => ac + cu);
+  };
+  const parallelize = (a, b, c) => {
+    let out = [];
+    for (var i = 0; i < a.length; i++) {
+      out.push({
+        score: parseFloat(texify(a[i])),
+        target: parseFloat(texify(b[i]).replace(/^\/\s*/, "")),
+        container: c[i]
+      });
     }
-  } else {
-    console.warn('The scores do not match');
+    console.table(out);
+    return out;
+  };
+  
+  const scoreElems = Array.from(document.body.querySelectorAll(
+    '.student_assignment.assignment_graded.editable .assignment_score .score_holder .grade'
+  ));
+  const targetElems = scoreElems.map(e => e.nextElementSibling);
+  const scoreContainers = scoreElems.map(e => seekParent(e, 3));
+  const total = scoreElems.length
+  
+  // let scores = texify(scoreElem);
+  // let maxScores = texify(targetElem).replace(/^\/\s*/, "");
+  const modules = parallelize(
+    scoreElems,
+    targetElems,
+    scoreContainers
+  );
+  
+  let str1, str2;
+  let score, target;
+  let delta;
+  
+  // color suggestion https://www.desmos.com/calculator/sm17he77ir
+  for (const unit of modules) {
+    console.log(unit);
+    let [score, target] = [unit.score, unit.target];
+    let colorGrading = "";
+    if (isNaN(unit.score)) {
+      colorGrading = `#ccc`;
+    } else if (score < target) {
+      delta = (target - score) / target;
+      let h = 95 * fq1(1 - fq1(Math.min(Math.max(F_RATIO * delta, 0), 1)));
+      colorGrading = `hsl(${h},90%,85%)`;
+    } else if (score === target) {
+      colorGrading = `hsl(120,90%,85%)`;
+    } else {
+      colorGrading = `hsl(220,90%,85%)`;
+    }
+    unit.container.style.backgroundColor = colorGrading;
   }
 
   function getScorePair(scoreText, targetText) {
