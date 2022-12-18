@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-grades-hightlighter
 // @namespace   slidav.Desmos
-// @version     0.1.2
+// @version     0.1.3
 // @author      David Flores (aka SlimRunner)
 // @description Adds color highlighting to grades on Canvas LMS
 // @grant       none
@@ -69,10 +69,6 @@
     scoreContainers
   );
   
-  let str1, str2;
-  let score, target;
-  let delta;
-  
   // color suggestion https://www.desmos.com/calculator/sm17he77ir
   for (const unit of modules) {
     let [score, target] = [unit.score, unit.target];
@@ -80,7 +76,7 @@
     if (isNaN(unit.score)) {
       colorGrading = `#ccc`;
     } else if (score < target) {
-      delta = (target - score) / target;
+      let delta = (target - score) / target;
       let h = 95 * fq1(1 - fq1(Math.min(Math.max(F_RATIO * delta, 0), 1)));
       colorGrading = `hsl(${h},90%,85%)`;
     } else if (score === target) {
@@ -89,6 +85,7 @@
       colorGrading = `hsl(220,90%,85%)`;
     }
     unit.container.style.backgroundColor = colorGrading;
+    unit.container.style.borderRadius = "10px";
   }
 
   function seekParent(src, level) {
