@@ -1,13 +1,11 @@
 // ==UserScript==
-// @name        canvas-grades-hightlighter
+// @name        canvas-grades-hightlighter-debug
 // @namespace   slidav.Desmos
 // @version     0.1.3
 // @author      David Flores (aka SlimRunner)
 // @description Adds color highlighting to grades on Canvas LMS
 // @grant       none
-// @match       https://ilearn.laccd.edu/courses/*/grades*
-// @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/canvas-grades-highlighter.user.js
-// @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/canvas-grades-highlighter.user.js
+// @match       https://ilearn.*.edu/courses/*/grades*
 // ==/UserScript==
 
 (function() {
@@ -59,7 +57,6 @@
   ));
   const targetElems = scoreElems.map(e => e.nextElementSibling);
   const scoreContainers = scoreElems.map(e => seekParent(e, 3));
-  const total = scoreElems.length
   
   // let scores = texify(scoreElem);
   // let maxScores = texify(targetElem).replace(/^\/\s*/, "");
@@ -68,7 +65,7 @@
     targetElems,
     scoreContainers
   );
-  
+  console.table(modules)
   // color suggestion https://www.desmos.com/calculator/sm17he77ir
   for (const unit of modules) {
     let [score, target] = [unit.score, unit.target];
