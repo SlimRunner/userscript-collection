@@ -1,19 +1,23 @@
 // ==UserScript==
 // @name        canvas-grades-hightlighter
 // @namespace   slidav.Desmos
-// @version     0.1.3
+// @version     0.1.4
 // @author      David Flores (aka SlimRunner)
 // @description Adds color highlighting to grades on Canvas LMS
 // @grant       none
-// @match       https://ilearn.laccd.edu/courses/*/grades*
+// @match       https://*.edu/courses/*/grades*
 // @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/canvas-grades-highlighter.user.js
 // @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/canvas-grades-highlighter.user.js
 // ==/UserScript==
 
 (function() {
-  'use strict';
+  "use strict";
 
-  const NT_PERCENT = 'percent';
+  const Ntype = Object.freeze({
+    ERROR: 0,
+    NUMBER: 1,
+    PERCENT: 2,
+  });
   const F_RATIO = 5 / 2;
   const TEXTNODE = 3;
   
@@ -37,8 +41,11 @@
   
   const fq1 = (x) => querp(0, 0.5, 1, invQuerp(0, 0, 1, x));
   const texify = (elem) => {
+    if (!(elem ?? false)) {
+      return "";
+    }
     return Array.from(elem.childNodes)
-      .filter(e => e.nodeType === 3)
+      .filter(e => e.nodeType === TEXTNODE)
       .map(e => e.textContent.trim())
       .reduce((ac, cu) => ac + cu);
   };
@@ -46,8 +53,8 @@
     let out = [];
     for (var i = 0; i < a.length; i++) {
       out.push({
-        score: parseFloat(texify(a[i])),
-        target: parseFloat(texify(b[i]).replace(/^\/\s*/, "")),
+        score: parseScore(texify(a[i])),
+        target: parseScore(texify(b[i]).replace(/^\/\s*/, "")),
         container: c[i]
       });
     }
@@ -59,7 +66,6 @@
   ));
   const targetElems = scoreElems.map(e => e.nextElementSibling);
   const scoreContainers = scoreElems.map(e => seekParent(e, 3));
-  const total = scoreElems.length
   
   // let scores = texify(scoreElem);
   // let maxScores = texify(targetElem).replace(/^\/\s*/, "");
@@ -71,9 +77,9 @@
   
   // color suggestion https://www.desmos.com/calculator/sm17he77ir
   for (const unit of modules) {
-    let [score, target] = [unit.score, unit.target];
+    let [score, target, isValid] = parsePair(unit.score, unit.target);
     let colorGrading = "";
-    if (isNaN(unit.score)) {
+    if (!isValid) {
       colorGrading = `#ccc`;
     } else if (score < target) {
       let delta = (target - score) / target;
@@ -84,8 +90,45 @@
     } else {
       colorGrading = `hsl(220,90%,85%)`;
     }
-    unit.container.style.backgroundColor = colorGrading;
-    unit.container.style.borderRadius = "10px";
+    if (unit.container ?? false) {
+      unit.container.style.backgroundColor = colorGrading;
+      unit.container.style.borderRadius = "10px";
+    }
+  }
+
+  function parsePair(x, y) {
+    switch (true) {
+      case x.type === Ntype.PERCENT:
+        return [x.value, 100, true];
+      case x.type === Ntype.NUMBER && y.type === Ntype.NUMBER:
+        return [x.value, y.value, true];
+      case x.type === Ntype.ERROR:
+        return [NaN, NaN, false];
+      default:
+        return [NaN, NaN, false];
+    }
+  }
+
+  function parseScore(n) {
+    let ispercent = (n.match(/(\d+)%/) ?? [false]).pop();
+    if (ispercent) {
+      return {
+        type: Ntype.PERCENT,
+        value: parseFloat(ispercent)
+      };
+    } else {
+      let np = parseFloat(n);
+      if (!isNaN(np)) {
+        return {
+          type: Ntype.NUMBER,
+          value: np
+        };
+      }
+    }
+    return {
+      type: Ntype.ERROR,
+      value: NaN
+    };
   }
 
   function seekParent(src, level) {
