@@ -9,9 +9,13 @@
 // ==/UserScript==
 
 (function() {
-  'use strict';
+  "use strict";
 
-  const NT_PERCENT = 'percent';
+  const Ntype = Object.freeze({
+    ERROR: 0,
+    NUMBER: 1,
+    PERCENT: 2,
+  });
   const F_RATIO = 5 / 2;
   const TEXTNODE = 3;
   
@@ -39,7 +43,7 @@
       return "";
     }
     return Array.from(elem.childNodes)
-      .filter(e => e.nodeType === 3)
+      .filter(e => e.nodeType === TEXTNODE)
       .map(e => e.textContent.trim())
       .reduce((ac, cu) => ac + cu);
   };
@@ -92,11 +96,11 @@
 
   function parsePair(x, y) {
     switch (true) {
-      case x.type === "percent":
+      case x.type === Ntype.PERCENT:
         return [x.value, 100, true];
-      case x.type === "number" && y.type === "number":
+      case x.type === Ntype.NUMBER && y.type === Ntype.NUMBER:
         return [x.value, y.value, true];
-      case x.type === "error":
+      case x.type === Ntype.ERROR:
         return [NaN, NaN, false];
       default:
         return [NaN, NaN, false];
@@ -107,20 +111,20 @@
     let ispercent = (n.match(/(\d+)%/) ?? [false]).pop();
     if (ispercent) {
       return {
-        type: "percent",
+        type: Ntype.PERCENT,
         value: parseFloat(ispercent)
       };
     } else {
       let np = parseFloat(n);
       if (!isNaN(np)) {
         return {
-          type: "number",
+          type: Ntype.NUMBER,
           value: np
         };
       }
     }
     return {
-      type: "error",
+      type: Ntype.ERROR,
       value: NaN
     };
   }
