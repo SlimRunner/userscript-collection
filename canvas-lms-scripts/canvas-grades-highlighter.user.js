@@ -5,7 +5,7 @@
 // @author      David Flores (aka SlimRunner)
 // @description Adds color highlighting to grades on Canvas LMS
 // @grant       none
-// @match       https://ilearn.*.edu/courses/*/grades*
+// @match       https://*.edu/courses/*/grades*
 // ==/UserScript==
 
 (function() {
@@ -35,6 +35,9 @@
   
   const fq1 = (x) => querp(0, 0.5, 1, invQuerp(0, 0, 1, x));
   const texify = (elem) => {
+    if (!(elem ?? false)) {
+      return "";
+    }
     return Array.from(elem.childNodes)
       .filter(e => e.nodeType === 3)
       .map(e => e.textContent.trim())
@@ -44,8 +47,8 @@
     let out = [];
     for (var i = 0; i < a.length; i++) {
       out.push({
-        score: parseFloat(texify(a[i])),
-        target: parseFloat(texify(b[i]).replace(/^\/\s*/, "")),
+        score: parseScore(texify(a[i])),
+        target: parseScore(texify(b[i]).replace(/^\/\s*/, "")),
         container: c[i]
       });
     }
@@ -65,12 +68,12 @@
     targetElems,
     scoreContainers
   );
-  console.table(modules)
+  
   // color suggestion https://www.desmos.com/calculator/sm17he77ir
   for (const unit of modules) {
-    let [score, target] = [unit.score, unit.target];
+    let [score, target, isValid] = parsePair(unit.score, unit.target);
     let colorGrading = "";
-    if (isNaN(unit.score)) {
+    if (!isValid) {
       colorGrading = `#ccc`;
     } else if (score < target) {
       let delta = (target - score) / target;
@@ -81,8 +84,47 @@
     } else {
       colorGrading = `hsl(220,90%,85%)`;
     }
-    unit.container.style.backgroundColor = colorGrading;
-    unit.container.style.borderRadius = "10px";
+    if (unit.container ?? False) {
+      unit.container.style.backgroundColor = colorGrading;
+      unit.container.style.borderRadius = "10px";
+    }
+  }
+
+  function parsePair(x, y) {
+    switch (true) {
+      case x.type === "percent":
+        return [x.value, 100, true];
+      case x.type === "number" && y.type === "number":
+        return [x.value, y.value, true];
+      case x.type === "error":
+        return [NaN, NaN, false];
+      default:
+        return [NaN, NaN, false];
+    }
+  }
+
+  function parseScore(n) {
+    if (isNaN(n)) {
+      if (typeof n === 'string' || n instanceof String) {
+        let ispercent = (n.match(/(\d+)%/) ?? [false]).pop();
+        if (ispercent) {
+          return {
+            type: "percent",
+            value: parseFloat(ispercent)
+          };
+        }
+      } else {
+        return {
+          type: "error",
+          value: NaN
+        };
+      }
+    } else {
+      return {
+        type: "number",
+        value: parseFloat(n)
+      };
+    }
   }
 
   function seekParent(src, level) {
