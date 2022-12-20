@@ -84,7 +84,7 @@
     } else {
       colorGrading = `hsl(220,90%,85%)`;
     }
-    if (unit.container ?? False) {
+    if (unit.container ?? false) {
       unit.container.style.backgroundColor = colorGrading;
       unit.container.style.borderRadius = "10px";
     }
@@ -104,27 +104,25 @@
   }
 
   function parseScore(n) {
-    if (isNaN(n)) {
-      if (typeof n === 'string' || n instanceof String) {
-        let ispercent = (n.match(/(\d+)%/) ?? [false]).pop();
-        if (ispercent) {
-          return {
-            type: "percent",
-            value: parseFloat(ispercent)
-          };
-        }
-      } else {
+    let ispercent = (n.match(/(\d+)%/) ?? [false]).pop();
+    if (ispercent) {
+      return {
+        type: "percent",
+        value: parseFloat(ispercent)
+      };
+    } else {
+      let np = parseFloat(n);
+      if (!isNaN(np)) {
         return {
-          type: "error",
-          value: NaN
+          type: "number",
+          value: np
         };
       }
-    } else {
-      return {
-        type: "number",
-        value: parseFloat(n)
-      };
     }
+    return {
+      type: "error",
+      value: NaN
+    };
   }
 
   function seekParent(src, level) {
