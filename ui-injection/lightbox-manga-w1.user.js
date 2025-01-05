@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
 // @namespace   slidav.Scripting
-// @version     0.0.3
+// @version     0.0.4
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
@@ -77,8 +77,8 @@
       lightbox.appendChild(imgElement);
 
       // Create navigation buttons
-      const prevButton = createNavButton("◀", "prev");
-      const nextButton = createNavButton("▶", "next");
+      const prevButton = createNavButton("▶", "prev");
+      const nextButton = createNavButton("◀", "next");
 
       lightbox.appendChild(prevButton);
       lightbox.appendChild(nextButton);
@@ -108,11 +108,11 @@
 
         switch (e.key) {
           case "ArrowLeft":
-            flipPrev();
+            flipNext();
             break;
 
           case "ArrowRight":
-            flipNext();
+            flipPrev();
             break;
 
           case "Escape":
@@ -204,7 +204,7 @@
         button.classList.add("slm-nora-lightbox-button");
         button.classList.add("no-transition");
         button.style.cssText =
-          direction === "prev" ? "left: 20px;" : "right: 20px;";
+          direction === "prev" ? "right: 20px;" : "left: 20px;";
         return button;
       }
     } else {
