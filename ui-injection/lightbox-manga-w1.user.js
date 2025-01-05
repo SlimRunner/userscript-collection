@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
 // @namespace   slidav.Scripting
-// @version     0.0.5
+// @version     0.1.0
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
@@ -34,14 +34,20 @@
           left: 0;
           width: 100vw;
           height: 100vh;
-          background-color: rgba(0, 0, 0, 0.8);
-          display: none; /* none | flex */
+          background-color: rgba(0, 0, 0, 0.9);
+          display: flex;
           justify-content: center;
           align-items: center;
           z-index: 9999;
           visibility: hidden;
           opacity: 0;
-          transition: opacity 0.3s ease-in-out;
+          transition: opacity 0.15s ease-in, visibility 0s 0.15s;
+        }
+
+        .slm-nora-lightbox.show {
+          visibility: visible;
+          opacity: 1;
+          transition: opacity 0.15s ease-out, visibility 0s;
         }
 
         .slm-nora-image {
@@ -49,17 +55,62 @@
           max-height: 95%;
         }
 
+        @media (orientation: portrait) {
+          .slm-nora-image {
+          }
+        }
+
         .slm-nora-lightbox-button {
+          all: unset;
+
           position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
+          top: 0;
+          height: 100%;
           background: none;
           border: none;
           color: white;
           font-size: 4rem;
+          opacity: 0%;
+          transition: opacity 0.075s ease-in;
+
+          cursor: none;
+          visibility: hidden;
+        }
+
+        .show .slm-nora-lightbox-button {
           cursor: pointer;
+          visibility: visible;
+        }
+
+        .show .slm-nora-lightbox-button:hover {
           opacity: 50%;
-          visibility: visible; /* hacky fix */
+        }
+
+        .show .slm-nora-lightbox-button:active {
+          opacity: 75%;
+        }
+
+        .slm-nora-lightbox-button.hide {
+          cursor: none;
+          visibility: hidden;
+        }
+
+        .slm-nora-lightbox-button-manga-prev {
+          right: 20px;
+        }
+
+        .slm-nora-lightbox-button-manga-next {
+          left: 20px;
+        }
+
+        .no-select {
+          -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+             -khtml-user-select: none; /* Konqueror HTML */
+               -moz-user-select: none; /* Old versions of Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                    user-select: none; /* Non-prefixed version, currently
+                                          supported by Chrome, Edge, Opera and Firefox */
         }
 
         .no-transition {
@@ -68,7 +119,8 @@
           -o-transition: none !important;
           transition: none !important;
         }
-        `, true
+        `,
+        true
       );
 
       // Create the lightbox
@@ -78,7 +130,7 @@
 
       // Create the img element for displaying images
       const imgElement = document.createElement("img");
-      imgElement.classList.add("slm-nora-image")
+      imgElement.classList.add("slm-nora-image");
       lightbox.appendChild(imgElement);
 
       // Create navigation buttons
@@ -100,35 +152,37 @@
           currentIndex = index;
           updateImage();
           updateNavButtons();
-          lightbox.style.visibility = "visible";
-          lightbox.style.display = "flex";
-          lightbox.style.opacity = "1";
+          // lightbox.style.visibility = "visible";
+          // lightbox.style.display = "flex";
+          // lightbox.style.opacity = "1";
+          lightbox.classList.add("show");
         });
       });
 
       window.addEventListener("keydown", (e) => {
-        if (lightbox.style.visibility !== "visible") {
+        if (!lightbox.classList.contains("show")) {
           return;
         }
 
         switch (e.key) {
           case "ArrowLeft":
             flipNext();
+            e.preventDefault();
             break;
 
           case "ArrowRight":
             flipPrev();
+            e.preventDefault();
             break;
 
           case "Escape":
             hideLightbox();
+            e.preventDefault();
             break;
 
           default:
             break;
         }
-
-        e.preventDefault();
       });
 
       // Hide lightbox on background click
@@ -154,14 +208,11 @@
       }
 
       function hideLightbox() {
-        lightbox.style.visibility = "hidden";
-        // BUG: display none prevents fade out animation
-        lightbox.style.display = "none"
-        lightbox.style.opacity = "0";
+        lightbox.classList.remove("show");
       }
 
       function flipPrev() {
-        if (prevButton.style.visibility !== "visible") {
+        if (prevButton.classList.contains("hide")) {
           return;
         }
         currentIndex = (currentIndex - 1 + images.length) % images.length;
@@ -170,7 +221,7 @@
       }
 
       function flipNext() {
-        if (nextButton.style.visibility !== "visible") {
+        if (nextButton.classList.contains("hide")) {
           return;
         }
         currentIndex = (currentIndex + 1) % images.length;
@@ -184,16 +235,8 @@
       }
 
       function updateNavButtons() {
-        if (currentIndex === 0) {
-          prevButton.style.visibility = "hidden";
-        } else {
-          prevButton.style.visibility = "visible";
-        }
-        if (currentIndex === images.length - 1) {
-          nextButton.style.visibility = "hidden";
-        } else {
-          nextButton.style.visibility = "visible";
-        }
+        prevButton.classList.toggle("hide", currentIndex === 0);
+        nextButton.classList.toggle("hide", currentIndex === images.length - 1);
       }
 
       function preloadAdjacentImages() {
@@ -207,10 +250,9 @@
       function createNavButton(label, direction) {
         const button = document.createElement("button");
         button.textContent = label;
+        button.classList.add("no-select");
         button.classList.add("slm-nora-lightbox-button");
-        button.classList.add("no-transition");
-        button.style.cssText =
-          direction === "prev" ? "right: 20px;" : "left: 20px;";
+        button.classList.add(`slm-nora-lightbox-button-manga-${direction}`);
         return button;
       }
     } else {
