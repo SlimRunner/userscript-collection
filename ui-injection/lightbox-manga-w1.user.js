@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
 // @namespace   slidav.Scripting
-// @version     0.1.0
+// @version     0.1.1
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
@@ -195,11 +195,13 @@
       // Navigation button handlers
       prevButton.addEventListener("click", (e) => {
         e.stopPropagation(); // Prevent lightbox background from closing
+        imgElement.focus();
         flipPrev();
       });
 
       nextButton.addEventListener("click", (e) => {
         e.stopPropagation(); // Prevent lightbox background from closing
+        imgElement.focus();
         flipNext();
       });
 
