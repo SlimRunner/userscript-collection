@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
 // @namespace   slidav.Scripting
-// @version     0.0.4
+// @version     0.0.5
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
@@ -35,13 +35,18 @@
           width: 100vw;
           height: 100vh;
           background-color: rgba(0, 0, 0, 0.8);
-          display: flex;
+          display: none; /* none | flex */
           justify-content: center;
           align-items: center;
           z-index: 9999;
           visibility: hidden;
           opacity: 0;
           transition: opacity 0.3s ease-in-out;
+        }
+
+        .slm-nora-image {
+          max-width: 85%;
+          max-height: 95%;
         }
 
         .slm-nora-lightbox-button {
@@ -53,6 +58,7 @@
           color: white;
           font-size: 4rem;
           cursor: pointer;
+          opacity: 50%;
           visibility: visible; /* hacky fix */
         }
 
@@ -72,8 +78,7 @@
 
       // Create the img element for displaying images
       const imgElement = document.createElement("img");
-      imgElement.style.maxWidth = "90%";
-      imgElement.style.maxHeight = "90%";
+      imgElement.classList.add("slm-nora-image")
       lightbox.appendChild(imgElement);
 
       // Create navigation buttons
@@ -96,7 +101,7 @@
           updateImage();
           updateNavButtons();
           lightbox.style.visibility = "visible";
-          lightbox.style.display = "";
+          lightbox.style.display = "flex";
           lightbox.style.opacity = "1";
         });
       });
@@ -150,6 +155,7 @@
 
       function hideLightbox() {
         lightbox.style.visibility = "hidden";
+        // BUG: display none prevents fade out animation
         lightbox.style.display = "none"
         lightbox.style.opacity = "0";
       }
