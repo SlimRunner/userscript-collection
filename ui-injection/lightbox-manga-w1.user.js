@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
 // @namespace   slidav.Scripting
-// @version     0.0.2
+// @version     0.0.3
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
@@ -222,7 +222,7 @@
       for (let i = 0; i < tabBase; ++i) {
         tab += " ";
       }
-      rules = rules.replaceAll(new RegExp(`^${TAB}${tabBase}`, "g"), "");
+      rules = rules.replaceAll(new RegExp(`^${TAB}{${tabBase}}`, "gm"), "");
     }
     const style = document.createElement("style");
     style.textContent = rules;
