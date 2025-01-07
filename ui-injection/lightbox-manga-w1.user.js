@@ -152,9 +152,6 @@
           currentIndex = index;
           updateImage();
           updateNavButtons();
-          // lightbox.style.visibility = "visible";
-          // lightbox.style.display = "flex";
-          // lightbox.style.opacity = "1";
           lightbox.classList.add("show");
         });
       });
@@ -194,13 +191,15 @@
 
       // Navigation button handlers
       prevButton.addEventListener("click", (e) => {
-        e.stopPropagation(); // Prevent lightbox background from closing
+        // Prevent lightbox background from closing
+        e.stopPropagation();
         imgElement.focus();
         flipPrev();
       });
 
       nextButton.addEventListener("click", (e) => {
-        e.stopPropagation(); // Prevent lightbox background from closing
+        // Prevent lightbox background from closing
+        e.stopPropagation();
         imgElement.focus();
         flipNext();
       });
