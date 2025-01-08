@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
 // @namespace   slidav.Scripting
-// @version     0.1.1
+// @version     0.2.0
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
@@ -26,18 +26,20 @@
       // The base code inside this if-statement was AI generated. I have
       // manually tweaked it from its original to improve readability.
 
-      addStyleSheet(
+      const stylesheet = addStyleSheet(
         `\
         .slm-nora-lightbox {
           position: fixed;
           top: 0;
           left: 0;
-          width: 100vw;
-          height: 100vh;
+          width: 100%;
+          height: 100%;
           background-color: rgba(0, 0, 0, 0.9);
+
           display: flex;
           justify-content: center;
           align-items: center;
+
           z-index: 9999;
           visibility: hidden;
           opacity: 0;
@@ -53,11 +55,10 @@
         .slm-nora-image {
           max-width: 85%;
           max-height: 95%;
-        }
 
-        @media (orientation: portrait) {
-          .slm-nora-image {
-          }
+          transform: translate(var(--slm-nora-image-x, 0px), var(--slm-nora-image-y, 0px)) scale(var(--slm-nora-image-scale, 1));
+          transform-origin: top left;
+          transition: transform 0.1s ease;
         }
 
         .slm-nora-lightbox-button {
@@ -96,11 +97,17 @@
         }
 
         .slm-nora-lightbox-button-manga-prev {
-          right: 20px;
+          right: 0px;
+          grid-row: 1;
         }
 
         .slm-nora-lightbox-button-manga-next {
-          left: 20px;
+          left: 0px;
+          grid-row: 1;
+        }
+
+        .slm-nora-hide-overflow {
+          overflow: hidden;
         }
 
         .no-select {
@@ -130,12 +137,14 @@
 
       // Create the img element for displaying images
       const imgElement = document.createElement("img");
+      imgElement.draggable = false;
       imgElement.classList.add("slm-nora-image");
       lightbox.appendChild(imgElement);
 
       // Create navigation buttons
       const prevButton = createNavButton("▶", "prev");
       const nextButton = createNavButton("◀", "next");
+      const progressBar = null;
 
       lightbox.appendChild(prevButton);
       lightbox.appendChild(nextButton);
@@ -144,6 +153,13 @@
       document.body.appendChild(lightbox);
 
       let currentIndex = 0;
+      let imgScale = 1;
+      let imgX = 0;
+      let imgY = 0;
+
+      let mseX = 0;
+      let mseY = 0;
+      let mseEnable = false;
 
       // Show lightbox and load the clicked image
       images.forEach((img, index) => {
@@ -152,41 +168,37 @@
           currentIndex = index;
           updateImage();
           updateNavButtons();
-          lightbox.classList.add("show");
+          showLightbox();
         });
       });
 
-      window.addEventListener("keydown", (e) => {
-        if (!lightbox.classList.contains("show")) {
-          return;
-        }
+      window.addEventListener("keydown", (e) =>
+        modalEvent(e, dispatchKeybinds)
+      );
 
-        switch (e.key) {
-          case "ArrowLeft":
-            flipNext();
-            e.preventDefault();
-            break;
+      lightbox.addEventListener("wheel", (e) => modalEvent(e, zoomEvent));
 
-          case "ArrowRight":
-            flipPrev();
-            e.preventDefault();
-            break;
+      lightbox.addEventListener("touchmove", (e) =>
+        modalEvent(e, e => {e.preventDefault();})
+      );
 
-          case "Escape":
-            hideLightbox();
-            e.preventDefault();
-            break;
-
-          default:
-            break;
-        }
-      });
+      lightbox.addEventListener("mousedown", (e) =>
+        modalEvent(e, dispatchMouse)
+      );
 
       // Hide lightbox on background click
       lightbox.addEventListener("click", (e) => {
         if (e.target === lightbox) {
           hideLightbox();
         }
+      });
+
+      imgElement.addEventListener("mousedown", imageDragSet);
+      imgElement.addEventListener("mousemove", imageDrag);
+      imgElement.addEventListener("mouseup", () => {mseEnable = false;});
+      imgElement.addEventListener("dblclick", () => {
+        updateImageScale(1);
+        updateImageLocation(0, 0);
       });
 
       // Navigation button handlers
@@ -204,12 +216,100 @@
         flipNext();
       });
 
-      function modalEventDisabler(e) {
-        e.preventDefault();
+      function modalEvent(e, callback) {
+        if (lightbox.classList.contains("show")) {
+          return callback(e);
+        }
+      }
+
+      function dispatchKeybinds(e) {
+        switch (e.key) {
+          case "ArrowLeft":
+            flipNext();
+            e.preventDefault();
+            break;
+
+          case "ArrowRight":
+            flipPrev();
+            e.preventDefault();
+            break;
+
+          case "Escape":
+            hideLightbox();
+            e.preventDefault();
+            break;
+          
+          case "ArrowDown":
+          case "ArrowUp":
+            e.preventDefault();
+            break;
+
+          default: break;
+        }
+      }
+
+      function zoomEvent(e) {
+        if (e instanceof WheelEvent) {
+          let scaleRatio = null;
+          if (e.deltaY > 0) {
+            // zoom out
+            scaleRatio = updateImageScale(Math.max(imgScale - 0.3, 1));
+          } else if (e.deltaY < 0) {
+            // zoom in
+            scaleRatio = updateImageScale(imgScale + 0.3);
+          }
+
+          if (scaleRatio !== null) {
+            const rect = imgElement.getBoundingClientRect();
+            const mouseX = e.clientX - rect.x;
+            const mouseY = e.clientY - rect.y;
+            const newXLoc = imgX + mouseX * (1 - scaleRatio);
+            const newYLoc = imgY + mouseY * (1 - scaleRatio);
+            updateImageLocation(newXLoc, newYLoc);
+          }
+
+          e.preventDefault();
+        } else {
+          throw new TypeError("e is not a WheelEvent");
+        }
+      }
+
+      function dispatchMouse(e) {
+        switch (e.button) {
+          case 1: // middle mouse
+            e.preventDefault();
+            break;
+          
+            default: break;
+        }
+      }
+
+      function imageDragSet(e) {
+        if (e instanceof MouseEvent && e.buttons > 0 && e.button === 0) {
+          mseEnable = true;
+          mseX = e.clientX;
+          mseY = e.clientY;
+        }
+      }
+
+      function imageDrag(e) {
+        if (e instanceof MouseEvent && e.buttons > 0 && e.button === 0 && mseEnable) {
+          const xDelta = e.clientX - mseX;
+          const yDelta = e.clientY - mseY;
+          updateImageLocation(imgX + xDelta, imgY + yDelta);
+          mseX = e.clientX;
+          mseY = e.clientY;
+        }
+      }
+
+      function showLightbox() {
+        lightbox.classList.add("show");
+        document.body.classList.add("slm-nora-hide-overflow");
       }
 
       function hideLightbox() {
         lightbox.classList.remove("show");
+        document.body.classList.remove("slm-nora-hide-overflow");
       }
 
       function flipPrev() {
@@ -231,8 +331,31 @@
       }
 
       function updateImage() {
+        updateImageScale(1);
+        updateImageLocation(0, 0);
         imgElement.src = images[currentIndex].src;
+        images[currentIndex].scrollIntoView();
         preloadAdjacentImages();
+      }
+
+      function updateImageScale(newScale) {
+        if (typeof newScale !== "number") {
+          throw TypeError("scale must be a number");
+        }
+        const scaleRatio = newScale / imgScale;
+        imgScale = newScale;
+        lightbox.style.setProperty("--slm-nora-image-scale", imgScale);
+        return scaleRatio;
+      }
+
+      function updateImageLocation(x, y) {
+        if (typeof x !== "number" || typeof y !== "number") {
+          throw TypeError("x and y must be numbers");
+        }
+        imgX = x;
+        imgY = y;
+        lightbox.style.setProperty("--slm-nora-image-x", `${imgX}px`);
+        lightbox.style.setProperty("--slm-nora-image-y", `${imgY}px`);
       }
 
       function updateNavButtons() {
@@ -276,5 +399,6 @@
     const style = document.createElement("style");
     style.textContent = rules;
     document.head.append(style);
+    return style;
   }
 })();
