@@ -6,10 +6,13 @@
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
 // @match       https://w1.noragamimanga.online/manga/noragami-chapter*
+// @run-at      document-start
 // ==/UserScript==
 
 (function () {
   "use strict";
+  interceptListeners(document, "mousedown");
+
   window.addEventListener("load", () => {
     const pages = Array.from(
       document.querySelectorAll(".entry-inner .entry-content p>img")
@@ -163,11 +166,13 @@
       // Show lightbox and load the clicked image
       images.forEach((img, index) => {
         img.style.cursor = "pointer";
-        img.addEventListener("click", () => {
+        img.addEventListener("click", (e) => {
           currentIndex = index;
           updateImage();
           updateNavButtons();
           showLightbox();
+          e.preventDefault();
+          e.stopPropagation();
         });
       });
 
@@ -395,5 +400,26 @@
     style.textContent = rules;
     document.head.append(style);
     return style;
+  }
+
+  // this function removes the annoying script that opens an ad when you
+  // click anywhere on the freaking page
+  function interceptListeners(targetElement, event) {
+    console.log("TAG");
+    // Override addEventListener to capture listeners as they are added
+    const originalAddEventListener = EventTarget.prototype.addEventListener;
+
+    EventTarget.prototype.addEventListener = function (
+      type,
+      listener,
+      options
+    ) {
+      if (this === targetElement && type === event) {
+        if (Error().stack.includes("chocolatehigherpicked.com")) {
+          return;
+        }
+      }
+      originalAddEventListener.call(this, type, listener, options);
+    };
   }
 })();
