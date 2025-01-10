@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
 // @namespace   slidav.Scripting
-// @version     0.2.1
+// @version     0.3.0
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
@@ -26,9 +26,6 @@
       images.length > 0 &&
       images.every((img) => img instanceof HTMLImageElement)
     ) {
-      // The base code inside this if-statement was AI generated. I have
-      // manually tweaked it from its original to improve readability.
-
       const stylesheet = addStyleSheet(
         `\
         .slm-nora-lightbox {
@@ -195,7 +192,9 @@
 
       imgElement.addEventListener("mousedown", imageDragSet);
       imgElement.addEventListener("mousemove", imageDrag);
-      imgElement.addEventListener("mouseup", () => {mseEnable = false;});
+      imgElement.addEventListener("mouseup", () => {
+        mseEnable = false;
+      });
       imgElement.addEventListener("dblclick", () => {
         updateImageScale(1);
         updateImageLocation(0, 0);
@@ -238,13 +237,14 @@
             hideLightbox();
             e.preventDefault();
             break;
-          
+
           case "ArrowDown":
           case "ArrowUp":
             e.preventDefault();
             break;
 
-          default: break;
+          default:
+            break;
         }
       }
 
@@ -279,8 +279,9 @@
           case 1: // middle mouse
             e.preventDefault();
             break;
-          
-            default: break;
+
+          default:
+            break;
         }
       }
 
@@ -293,7 +294,12 @@
       }
 
       function imageDrag(e) {
-        if (e instanceof MouseEvent && e.buttons > 0 && e.button === 0 && mseEnable) {
+        if (
+          e instanceof MouseEvent &&
+          e.buttons > 0 &&
+          e.button === 0 &&
+          mseEnable
+        ) {
           const xDelta = e.clientX - mseX;
           const yDelta = e.clientY - mseY;
           updateImageLocation(imgX + xDelta, imgY + yDelta);
