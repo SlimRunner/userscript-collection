@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
 // @namespace   slidav.Scripting
-// @version     0.2.0
+// @version     0.2.1
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
@@ -98,16 +98,15 @@
 
         .slm-nora-lightbox-button-manga-prev {
           right: 0px;
-          grid-row: 1;
         }
 
         .slm-nora-lightbox-button-manga-next {
           left: 0px;
-          grid-row: 1;
         }
 
         .slm-nora-hide-overflow {
           overflow: hidden;
+          touch-action: auto;
         }
 
         .no-select {
@@ -177,10 +176,6 @@
       );
 
       lightbox.addEventListener("wheel", (e) => modalEvent(e, zoomEvent));
-
-      lightbox.addEventListener("touchmove", (e) =>
-        modalEvent(e, e => {e.preventDefault();})
-      );
 
       lightbox.addEventListener("mousedown", (e) =>
         modalEvent(e, dispatchMouse)
