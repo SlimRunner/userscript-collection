@@ -411,7 +411,6 @@
   // this function removes the annoying script that opens an ad when you
   // click anywhere on the freaking page
   function interceptListeners(targetElement, event) {
-    console.log("TAG");
     // Override addEventListener to capture listeners as they are added
     const originalAddEventListener = EventTarget.prototype.addEventListener;
 
