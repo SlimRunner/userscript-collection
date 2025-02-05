@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name        NoragamiMangaLightbox
-// @namespace   slidav.Scripting
+// @namespace   slidav.UIm
 // @version     0.3.0
 // @author      SlimRunner (David Flores)
 // @description Adds a nice lightbox navigation to the page
 // @grant       none
 // @match       https://w1.noragamimanga.online/manga/noragami-chapter*
+// @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/lightbox-manga-w1.user.js
+// @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/lightbox-manga-w1.user.js
 // @run-at      document-start
 // ==/UserScript==
 
