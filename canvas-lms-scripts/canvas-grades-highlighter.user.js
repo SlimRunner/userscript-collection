@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        canvas-grades-hightlighter
-// @namespace   slidav.Desmos
+// @namespace   slidav.Canvas
 // @version     0.1.4
 // @author      David Flores (aka SlimRunner)
 // @description Adds color highlighting to grades on Canvas LMS
