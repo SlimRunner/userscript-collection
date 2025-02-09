@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name        canvas-grades-hightlighter
+// @name        canvas-quiz-archive-tool
 // @namespace   slidav.Canvas
 // @version     0.0.2
 // @author      David Flores (aka SlimRunner)
 // @description Captures questions for archival purposes
 // @grant       none
-// @match       https://*.edu/courses/*/assignments/*/sumissions*
+// @match       https://*.edu/courses/*/assignments/*/submissions*
 // @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/quiz-archival-scrapper.user.js
 // @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/quiz-archival-scrapper.user.js
 // ==/UserScript==
