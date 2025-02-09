@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-grades-hightlighter
 // @namespace   slidav.Canvas
-// @version     0.0.1
+// @version     0.0.2
 // @author      David Flores (aka SlimRunner)
 // @description Captures questions for archival purposes
 // @grant       none
@@ -30,7 +30,6 @@
 
   window.getItems = getItems;
   window.formatAsTex = formatAsTex;
-  copy(formatAsTex(getItems()));
 
   function isLive() {
     return !document.querySelector(".submission_details");
@@ -132,6 +131,7 @@
   }
 
   function formatAsTex(quiz) {
+    // this function is specific for a compressed TEX file
     const result = quiz.map(q => {
       // ["name", "score", "question", "answers", "other"]
       const partial = [];
