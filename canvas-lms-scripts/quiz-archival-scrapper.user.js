@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-quiz-archive-tool
 // @namespace   slidav.Canvas
-// @version     0.0.2
+// @version     0.1.0
 // @author      David Flores (aka SlimRunner)
 // @description Captures questions for archival purposes
 // @grant       none
@@ -23,6 +23,7 @@
           result[key] = o[key].textContent.trim();
         }
       });
+      result.answers = result.answers.map((e, i) => [e, o.answerKeys[i]]);
       return result;
     });
     return textNodes;
@@ -30,6 +31,7 @@
 
   window.getItems = getItems;
   window.formatAsTex = formatAsTex;
+  window.parseAsMD = parseAsMD;
 
   function isLive() {
     return !document.querySelector(".submission_details");
@@ -125,20 +127,49 @@
           answers: queryAllOrError(item, queries.answerText),
           other: queryAllOrError(item, queries.otherText),
         };
-      })
+      }).map(item => {
+        return {
+          ...item,
+          answerKeys: Array.from(item.answers).map(ak => !!ak.closest(".correct_answer"))
+        }
+      });
     }
     return objects;
+  }
+
+  function parseAsMD(quiz) {
+    return quiz
+      .map((e) =>
+        [
+          `## ${e.name}`,
+          ["```", e.question, "```"].join("\n"),
+          e.answers
+            .map(([ans, corr]) => `* [${corr ? "x" : " "}] ${ans}`)
+            .join("\n"),
+        ].join("\n")
+      )
+      .join("\n");
   }
 
   function formatAsTex(quiz) {
     // this function is specific for a compressed TEX file
     const result = quiz.map(q => {
-      // ["name", "score", "question", "answers", "other"]
+      /*
+        name: string
+        score: string
+        question: string
+        answers: [string, bool]
+        other: string
+      */
       const partial = [];
       partial.push(`\\item ${q.question[0]}`);
       partial.push("\\begin{itemize}[itemsep=0em]");
-      q.answers.forEach(a => {
-        partial.push(`\\item ${a}`);
+      q.answers.forEach(([a, c]) => {
+        if (c) {
+          partial.push(`\\textbf{\\item ${a}}`);
+        } else {
+          partial.push(`\\item ${a}`);
+        }
       });
       partial.push("\\end{itemize}");
       return partial.join("\n");
