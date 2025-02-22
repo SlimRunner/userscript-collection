@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-quiz-archive-tool
 // @namespace   slidav.Canvas
-// @version     0.2.1
+// @version     0.2.2
 // @author      David Flores (aka SlimRunner)
 // @description Captures questions for archival purposes
 // @grant       none
@@ -89,7 +89,20 @@
     // if (element instanceof Docu) {
     const nodes = element.querySelectorAll(query);
     if (nodes.length === 0) {
-      throw new RangeError(`The query failed.`);
+      throw new RangeError(`The query failed.\n > ${query}`);
+    }
+    return nodes;
+    // } else {
+    //   console.log(element);
+    //   throw new TypeError("Expected an element");
+    // }
+  }
+
+  function queryAllOrIgnore(element, query) {
+    // if (element instanceof Docu) {
+    const nodes = element.querySelectorAll(query);
+    if (nodes.length === 0) {
+      return [];
     }
     return nodes;
     // } else {
@@ -150,8 +163,8 @@
             name: queryOrError(item, queries.questionName, 1),
             score: queryOrError(item, queries.questionScore, 1),
             question: queryAllOrError(item, queries.questionText),
-            answers: queryAllOrError(item, queries.answerText),
-            other: queryAllOrError(item, queries.otherText),
+            answers: queryAllOrIgnore(item, queries.answerText),
+            other: queryAllOrIgnore(item, queries.otherText),
           };
         })
         .map((item) => {
