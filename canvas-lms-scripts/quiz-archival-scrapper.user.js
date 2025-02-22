@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-quiz-archive-tool
 // @namespace   slidav.Canvas
-// @version     0.2.0
+// @version     0.2.1
 // @author      David Flores (aka SlimRunner)
 // @description Captures questions for archival purposes
 // @grant       none
@@ -16,21 +16,8 @@
   const freezeFromNull = (obj) =>
     Object.freeze(Object.assign(Object.create(null), obj));
 
-  const CNV = Object.create(null);
-  const tags = Object.create(null);
-
-  CNV.getItems = getItems;
-  CNV.formatAsTex = formatAsTeX;
-  CNV.parseAsMD = parseAsMD;
-
-  tags.selected_answer = "selected_answer";
-  tags.correct_answer = "correct_answer";
-
-  CNV.tags = tags;
-  window.CNV = CNV;
-
-  const getItems = ({ answer_type = tags.correct_answer } = {}) => {
-    const objs = collectObjects(answer_type);
+  const getItems = (options = {}) => {
+    const objs = collectObjects(options);
     const textNodes = objs.map((o) => {
       const result = {};
       ["name", "score", "question", "answers", "other"].forEach((key) => {
@@ -45,6 +32,19 @@
     });
     return textNodes;
   };
+
+  const cn = Object.create(null);
+  const tags = Object.create(null);
+
+  cn.getItems = getItems;
+  cn.formatAsTex = formatAsTeX;
+  cn.parseAsMD = parseAsMD;
+
+  tags.selected_answer = "selected_answer";
+  tags.correct_answer = "correct_answer";
+
+  cn.tags = tags;
+  window.cn = cn;
 
   function isIframed() {
     return document.querySelector(".submission_details");
