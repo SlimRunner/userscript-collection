@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-quiz-archive-tool
 // @namespace   slidav.Canvas
-// @version     0.1.1
+// @version     0.2.0
 // @author      David Flores (aka SlimRunner)
 // @description Captures questions for archival purposes
 // @grant       none
@@ -11,15 +11,31 @@
 // @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/canvas-lms-scripts/quiz-archival-scrapper.user.js
 // ==/UserScript==
 
-(function() {
-  'use strict';
-  const getItems = () => {
-    const objs = collectObjects();
-    const textNodes = objs.map(o => {
+(function () {
+  "use strict";
+  const freezeFromNull = (obj) =>
+    Object.freeze(Object.assign(Object.create(null), obj));
+
+  const CNV = Object.create(null);
+  const tags = Object.create(null);
+
+  CNV.getItems = getItems;
+  CNV.formatAsTex = formatAsTeX;
+  CNV.parseAsMD = parseAsMD;
+
+  tags.selected_answer = "selected_answer";
+  tags.correct_answer = "correct_answer";
+
+  CNV.tags = tags;
+  window.CNV = CNV;
+
+  const getItems = ({ answer_type = tags.correct_answer } = {}) => {
+    const objs = collectObjects(answer_type);
+    const textNodes = objs.map((o) => {
       const result = {};
-      ["name", "score", "question", "answers", "other"].forEach(key => {
+      ["name", "score", "question", "answers", "other"].forEach((key) => {
         if (Symbol.iterator in o[key]) {
-          result[key] = Array.from(o[key]).map(e => e.textContent.trim());
+          result[key] = Array.from(o[key]).map((e) => e.textContent.trim());
         } else {
           result[key] = o[key].textContent.trim();
         }
@@ -28,11 +44,7 @@
       return result;
     });
     return textNodes;
-  }
-
-  window.getItems = getItems;
-  window.formatAsTex = formatAsTex;
-  window.parseAsMD = parseAsMD;
+  };
 
   function isIframed() {
     return document.querySelector(".submission_details");
@@ -61,7 +73,8 @@
         isLive: false,
         isIframed: isIframed(),
         iframe: "iframe#preview_frame",
-        quizItems: ".quiz-submission #questions .question_holder .display_question",
+        quizItems:
+          ".quiz-submission #questions .question_holder .display_question",
         questionName: ".name.question_name",
         questionScore: ".user_points",
         questionText: ".question_text",
@@ -74,11 +87,11 @@
 
   function queryAllOrError(element, query) {
     // if (element instanceof Docu) {
-      const nodes = element.querySelectorAll(query);
-      if (nodes.length === 0) {
-        throw new RangeError(`The query failed.`);
-      }
-      return nodes;
+    const nodes = element.querySelectorAll(query);
+    if (nodes.length === 0) {
+      throw new RangeError(`The query failed.`);
+    }
+    return nodes;
     // } else {
     //   console.log(element);
     //   throw new TypeError("Expected an element");
@@ -87,32 +100,34 @@
 
   function queryOrError(element, query, atMost = 0, pick = 0) {
     // if (element instanceof HTMLElement) {
-      let result = null;
-      if (atMost <= 0) {
-        result = element.querySelector(query);
-      } else {
-        const nodes = element.querySelectorAll(query);
-        if (nodes.length > atMost) {
-          throw new TypeError(`Found ${nodes.length}. Expected ${atMost}`);
-        }
-        if (pick >= nodes.length) {
-          throw new RangeError(`Picked item is out of bounds. ${pick} >= ${nodes.length} ${query}`);
-        }
-        result = nodes.length === 0 ? null : nodes[pick];
+    let result = null;
+    if (atMost <= 0) {
+      result = element.querySelector(query);
+    } else {
+      const nodes = element.querySelectorAll(query);
+      if (nodes.length > atMost) {
+        throw new TypeError(`Found ${nodes.length}. Expected ${atMost}`);
       }
-      if (result === null) {
-        throw new TypeError(`The query failed.`);
-      } else if (!(result instanceof Element)) {
-        // throw new TypeError("The query returned a non-element.");
+      if (pick >= nodes.length) {
+        throw new RangeError(
+          `Picked item is out of bounds. ${pick} >= ${nodes.length} ${query}`
+        );
       }
-      return result;
+      result = nodes.length === 0 ? null : nodes[pick];
+    }
+    if (result === null) {
+      throw new TypeError(`The query failed.`);
+    } else if (!(result instanceof Element)) {
+      // throw new TypeError("The query returned a non-element.");
+    }
+    return result;
     // } else {
     //   console.log(element);
     //   throw new TypeError("Expected an element");
     // }
   }
 
-  function collectObjects() {
+  function collectObjects({ answer_type = tags.correct_answer } = {}) {
     const queries = getQueries();
     let objects;
 
@@ -129,20 +144,24 @@
         context = context.contentWindow.document.body;
       }
       const items = Array.from(queryAllOrError(context, queries.quizItems));
-      objects = items.map(item => {
-        return {
-          name: queryOrError(item, queries.questionName, 1),
-          score: queryOrError(item, queries.questionScore, 1),
-          question: queryAllOrError(item, queries.questionText),
-          answers: queryAllOrError(item, queries.answerText),
-          other: queryAllOrError(item, queries.otherText),
-        };
-      }).map(item => {
-        return {
-          ...item,
-          answerKeys: Array.from(item.answers).map(ak => !!ak.closest(".correct_answer"))
-        }
-      });
+      objects = items
+        .map((item) => {
+          return {
+            name: queryOrError(item, queries.questionName, 1),
+            score: queryOrError(item, queries.questionScore, 1),
+            question: queryAllOrError(item, queries.questionText),
+            answers: queryAllOrError(item, queries.answerText),
+            other: queryAllOrError(item, queries.otherText),
+          };
+        })
+        .map((item) => {
+          return {
+            ...item,
+            answerKeys: Array.from(item.answers).map(
+              (ak) => !!ak.closest(`.${answer_type}`)
+            ),
+          };
+        });
     }
     return objects;
   }
@@ -161,9 +180,9 @@
       .join("\n");
   }
 
-  function formatAsTex(quiz) {
+  function formatAsTeX(quiz) {
     // this function is specific for a compressed TEX file
-    const result = quiz.map(q => {
+    const result = quiz.map((q) => {
       /*
         name: string
         score: string
@@ -183,7 +202,7 @@
       });
       partial.push("\\end{itemize}");
       return partial.join("\n");
-    })
+    });
     return result.join("\n");
   }
-}());
+})();
