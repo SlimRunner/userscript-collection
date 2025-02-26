@@ -60,13 +60,13 @@
         isLive: true,
         isIframed: null,
         iframe: null,
-        quizItems: "",
-        questionName: "",
-        questionScore: "",
-        questionText: "",
-        answerItems: "",
-        answerText: "",
-        otherText: "",
+        quizItems: "#questions .question_holder .display_question",
+        questionName: ".name.question_name",
+        questionScore: ".question_points_holder>.points.question_points",
+        questionText: ".question_text",
+        answerItems: ".answers",
+        answerText: ".answers .user_content",
+        otherText: ".after_answers",
       };
     } else {
       return {
@@ -146,7 +146,26 @@
 
     if (queries.isLive) {
       // nothing to do yet
-      throw new Error("not implemented yet");
+      let context = document.body;
+      const items = Array.from(queryAllOrError(context, queries.quizItems));
+      objects = items
+        .map((item) => {
+          return {
+            name: queryOrError(item, queries.questionName, 1),
+            score: queryOrError(item, queries.questionScore, 1),
+            question: queryAllOrError(item, queries.questionText),
+            answers: queryAllOrIgnore(item, queries.answerText),
+            other: queryAllOrIgnore(item, queries.otherText),
+          };
+        })
+        .map((item) => {
+          return {
+            ...item,
+            answerKeys: Array.from(item.answers).map(
+              (ak) => !!ak.closest(`.${tags.selected_answer}`)
+            ),
+          };
+        });
     } else {
       let context = document.body;
       if (queries.isIframed) {
@@ -183,7 +202,7 @@
     return quiz
       .map((e) =>
         [
-          `## ${e.name}`,
+          `## ${e.name} (${e.score} pts)`,
           ["```", e.question, "```"].join("\n"),
           e.answers
             .map(([ans, corr]) => `* [${corr ? "x" : " "}] ${ans}`)
