@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        canvas-quiz-archive-tool
 // @namespace   slidav.Canvas
-// @version     0.2.2
+// @version     0.2.3
 // @author      David Flores (aka SlimRunner)
 // @description Captures questions for archival purposes
 // @grant       none
@@ -212,6 +212,22 @@
       .join("\n");
   }
 
+  function escapeLaTeX(text) {
+    const replacements = {
+      '\\': '\\textbackslash{}',
+      '{': '\\{',
+      '}': '\\}',
+      '#': '\\#',
+      '%': '\\%',
+      '&': '\\&',
+      '$': '\\$',
+      '_': '\\_',
+      '^': '\\textasciicircum{}',
+      '~': '\\textasciitilde{}'
+    };
+    return text.replace(/[\\{}#%&$_^~]/g, (match) => replacements[match]);
+  }
+
   function formatAsTeX(quiz) {
     // this function is specific for a compressed TEX file
     const result = quiz.map((q) => {
@@ -223,13 +239,16 @@
         other: string
       */
       const partial = [];
-      partial.push(`\\item ${q.question[0]}`);
+
+      const qText = escapeLaTeX(q.question[0]);
+      partial.push(`\\item ${qText}`);
       partial.push("\\begin{itemize}[itemsep=0em]");
       q.answers.forEach(([a, c]) => {
+        const aText = escapeLaTeX(a);
         if (c) {
-          partial.push(`\\textbf{\\item ${a}}`);
+          partial.push(`\\item \\textbf{${aText}}`);
         } else {
-          partial.push(`\\item ${a}`);
+          partial.push(`\\item ${aText}`);
         }
       });
       partial.push("\\end{itemize}");
