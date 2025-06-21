@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        CrunchyEpThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.1.0
+// @version     0.2.0
 // @author      SlimRunner (David Flores)
 // @description Hides thumbnails of non-watched episodes in Crunchyroll
 // @grant       none
@@ -21,18 +21,23 @@
   const customJoin = (sel, common, descendants) =>
     sel.map((e) => `${e}${common.join("")}${["", ...descendants].join("\n")}`);
 
-  const rules = `
-  /* hide thumbs in episode lists */
-  ${customJoin(dyanmicCards, [toggleClass], [contentClass])} {
-    visibility: hidden;
-  }
-  ${customJoin(dyanmicCards, [toggleClass], [])} {
-    background: rgba(255 255 255 / 25%);
-  }`.replace(/^ {2}/, "");
+  addStyleSheet(
+    `\
+    /* hide thumbs in episode lists */
+    ${customJoin(dyanmicCards, [toggleClass], [contentClass])} {
+      visibility: hidden;
+    }
 
-  const style = document.createElement("style");
-  style.textContent = rules;
-  document.head.append(style);
+    ${customJoin(dyanmicCards, [toggleClass], [])} {
+      background: rgba(255 255 255 / 25%);
+    }
+
+    .container--cq5XE .erc-history-collection>div {
+      display: block;
+    }
+    `,
+    true
+  );
   const observedClasses = customJoin(dyanmicCards, [], []);
 
   const viewEnabler = () => {
@@ -64,4 +69,22 @@
 
   const pgObs = new MutationObserver(enableViewInterval);
   pgObs.observe(document, mtconfig);
+
+  function addStyleSheet(rules, dedent = false) {
+    if (dedent) {
+      const TAB = /^\t/.test(rules) ? "\t" : " ";
+      const tabBase = rules
+        .match(new RegExp(String.raw`^${TAB}+(?!\n$)`, "gm"))
+        .reduce((acc, curr) => Math.min(acc, curr.length), Infinity);
+      let tab = "";
+      for (let i = 0; i < tabBase; ++i) {
+        tab += " ";
+      }
+      rules = rules.replaceAll(new RegExp(`^${TAB}{${tabBase}}`, "gm"), "");
+    }
+    const style = document.createElement("style");
+    style.textContent = rules;
+    document.head.append(style);
+    return style;
+  }
 })();
