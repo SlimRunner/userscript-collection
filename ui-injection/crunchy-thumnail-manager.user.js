@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name        CrunchyEpThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.2.0
+// @version     0.2.1
 // @author      SlimRunner (David Flores)
 // @description Hides thumbnails of non-watched episodes in Crunchyroll
 // @grant       none
 // @match       https://www.crunchyroll.com/*
+// @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/ui-injection/crunchy-thumnail-manager.user.js
+// @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/ui-injection/crunchy-thumnail-manager.user.js
 // ==/UserScript==
 
 (function () {
