@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.gradescope
-// @version     0.0.1
+// @version     0.0.2
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
@@ -51,7 +51,7 @@
       elements.splice(6);
       // broken down into multiple maps to improve readability
       const rawNumbers = elements
-        .map(e => e.textContent.replace(",", ""))
+        .map(e => e.textContent.replaceAll(",", ""))
         .map(e => e.match(/\d+/).at(0))
         .map(e => parseInt(e));
       result = {
