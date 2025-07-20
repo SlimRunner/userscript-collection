@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.gradescope
-// @version     0.1.0
+// @version     0.1.1
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
@@ -23,9 +23,9 @@
   const ratingsStDev = Math.sqrt(ratings.reduce((x, [r, v]) => x + (r - ratingsMean) ** 2 * v / ratingsTotal, 0));
 
   const dropRate = summary.dropped / (summary.dropped + summary.completed + summary.watching);
+  const abandonmentRate = (summary.dropped + summary.onHold) / (summary.dropped + summary.completed + summary.watching + summary.onHold);
   const completionRate = summary.completed / (summary.dropped + summary.completed + summary.watching + summary.onHold);
   const engagementRate = (summary.watching + summary.completed) / summary.total;
-  const abandonmentRate = (summary.dropped + summary.onHold) / (summary.dropped + summary.completed + summary.watching + summary.onHold);
 
   console.table({
     ratingsTotal,
@@ -35,16 +35,16 @@
 
   console.table({
     dropRate: Math.round(10000 * dropRate) / 100,
+    abandonmentRate: Math.round(10000 * abandonmentRate) / 100,
     completionRate: Math.round(10000 * completionRate) / 100,
     engagementRate: Math.round(10000 * engagementRate) / 100,
-    abandonmentRate: Math.round(10000 * abandonmentRate) / 100,
   });
 
   const inlineMessage = [title]
   inlineMessage.push(Math.round(10000 * dropRate) / 100);
+  inlineMessage.push(Math.round(10000 * abandonmentRate) / 100);
   inlineMessage.push(Math.round(10000 * completionRate) / 100);
   inlineMessage.push(Math.round(10000 * engagementRate) / 100);
-  inlineMessage.push(Math.round(10000 * abandonmentRate) / 100);
   inlineMessage.push(entryURL);
 
   const inlineEntry = inlineMessage.join("\n");
