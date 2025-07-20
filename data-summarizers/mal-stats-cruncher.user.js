@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.gradescope
-// @version     0.0.2
+// @version     0.1.0
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
@@ -13,8 +13,10 @@
 (function () {
   "use strict";
   // --
+  const title = getTitle();
   const summary = getSummary();
   const ratings = getRatings();
+  const entryURL = document.URL.replace(/\/stats$/, "");
 
   const ratingsTotal = ratings.reduce((x, [r, v]) => x + v, 0);
   const ratingsMean = ratings.reduce((x, [r, v]) => x + r * v / ratingsTotal, 0);
@@ -38,9 +40,32 @@
     abandonmentRate: Math.round(10000 * abandonmentRate) / 100,
   });
 
+  const inlineMessage = [title]
+  inlineMessage.push(Math.round(10000 * dropRate) / 100);
+  inlineMessage.push(Math.round(10000 * completionRate) / 100);
+  inlineMessage.push(Math.round(10000 * engagementRate) / 100);
+  inlineMessage.push(Math.round(10000 * abandonmentRate) / 100);
+  inlineMessage.push(entryURL);
+
+  const inlineEntry = inlineMessage.join("\n");
+
+  console.log(inlineEntry);
+
   window.malStats = {
     summary,
-    ratings
+    ratings,
+    inlineEntry,
+  }
+
+  function getTitle() {
+    const elements = document.querySelector(".title-name");
+    let result = null;
+
+    if (elements != null) {
+      result = elements.textContent.trim();
+    }
+
+    return result;
   }
 
   function getSummary() {
