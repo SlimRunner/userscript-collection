@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        CrunchyEpThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.2.1
+// @version     0.2.2
 // @author      SlimRunner (David Flores)
 // @description Hides thumbnails of non-watched episodes in Crunchyroll
 // @grant       none
@@ -57,7 +57,7 @@
   };
 
   let pageInterval = null;
-  const seriesURL = /(?<=crunchyroll.com\/)series|crunchyroll.com\/?$/;
+  const seriesURL = /(?<=crunchyroll.com\/)series|crunchyroll.com(?:\/discover|\/)?$/;
   const mtconfig = { childList: true, subtree: true };
   const enableViewInterval = (mutList, obs) => {
     const pageMatches = seriesURL.test(location.href);
