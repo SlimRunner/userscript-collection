@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.gradescope
-// @version     0.2.0
+// @version     0.2.1
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
@@ -26,15 +26,15 @@
   };
   const entryURL = document.URL.replace(/\/stats$/, "");
 
-  const ratingsTotal = ratings.reduce((x, [r, v]) => x + v, 0);
-  const ratingsMean = ratings.reduce((x, [r, v]) => x + r * v / ratingsTotal, 0);
-  const ratingsStDev = Math.sqrt(ratings.reduce((x, [r, v]) => x + (r - ratingsMean) ** 2 * v / ratingsTotal, 0));
-  const ratingsPeaks =  getPeaks(ratings, { comparator: (a, b) => a[1] - b[1] });
-  const ratingsMode = ratings.reduce((x, [r, v]) => (v <= x[1] ? x : [r, v]));
+  const ratingsTotal = ratings.reduce((x, {rate: r, freq: v}) => x + v, 0);
+  const ratingsMean = ratings.reduce((x, {rate: r, freq: v}) => x + r * v / ratingsTotal, 0);
+  const ratingsStDev = Math.sqrt(ratings.reduce((x, {rate: r, freq: v}) => x + (r - ratingsMean) ** 2 * v / ratingsTotal, 0));
+  const ratingsPeaks =  getPeaks(ratings, { comparator: (a, b) => a.freq - b.freq });
+  const ratingsMode = ratings.reduce((x, {rate: r, freq: v}) => (v <= x.freq ? x : {rate: r, freq: v}));
   const ratingsMedian = getMedian(ratings, {
-    getValue: x => x[0],
-    getFreq: x => x[1],
-    meanFn: (a, b) => [a, b]
+    getValue: x => x.rate,
+    getFreq: x => x.freq,
+    meanFn: (a, b) => (a.rate + b.rate) / 2
   });
   stats.total = ratingsTotal;
   stats.mean = ratingsMean;
@@ -50,8 +50,11 @@
 
   console.table({
     ratingsTotal,
-    ratingsMean,
-    ratingsStDev,
+    ratingsMean: Math.round(ratingsMean * 100) / 100,
+    ratingsStDev: Math.round(ratingsStDev * 100) / 100,
+    ratingsMode: ratingsMode.rate,
+    ratingsMedian: ratingsMedian.rate,
+    ratingsPeaks: ratingsPeaks.map(e => e.rate).join(", "),
   });
 
   console.table({
@@ -123,7 +126,10 @@
       const rawNumbers = elements
         .map(e => e.textContent.trim())
         .map(e => e.match(/(?<=\()\s*\d+\s*(?=votes\))/).at(0))
-        .map((e, i) => [10 - i, parseInt(e)]);
+        .map((e, i) => ({
+          rate: 10 - i,
+          freq: parseInt(e),
+        }));
       result = rawNumbers;
     }
 
