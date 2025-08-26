@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.gradescope
-// @version     0.1.1
+// @version     0.2.0
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
@@ -16,11 +16,32 @@
   const title = getTitle();
   const summary = getSummary();
   const ratings = getRatings();
+  const stats = {
+    total: null,
+    mean: null,
+    stdev: null,
+    mode: null,
+    median: null,
+    peaks: null,
+  };
   const entryURL = document.URL.replace(/\/stats$/, "");
 
   const ratingsTotal = ratings.reduce((x, [r, v]) => x + v, 0);
   const ratingsMean = ratings.reduce((x, [r, v]) => x + r * v / ratingsTotal, 0);
   const ratingsStDev = Math.sqrt(ratings.reduce((x, [r, v]) => x + (r - ratingsMean) ** 2 * v / ratingsTotal, 0));
+  const ratingsPeaks =  getPeaks(ratings, { comparator: (a, b) => a[1] - b[1] });
+  const ratingsMode = ratings.reduce((x, [r, v]) => (v <= x[1] ? x : [r, v]));
+  const ratingsMedian = getMedian(ratings, {
+    getValue: x => x[0],
+    getFreq: x => x[1],
+    meanFn: (a, b) => [a, b]
+  });
+  stats.total = ratingsTotal;
+  stats.mean = ratingsMean;
+  stats.stdev = ratingsStDev;
+  stats.mode = ratingsMode;
+  stats.median = ratingsMedian;
+  stats.peaks = ratingsPeaks;
 
   const dropRate = summary.dropped / (summary.dropped + summary.completed + summary.watching);
   const abandonmentRate = (summary.dropped + summary.onHold) / (summary.dropped + summary.completed + summary.watching + summary.onHold);
@@ -55,6 +76,7 @@
     summary,
     ratings,
     inlineEntry,
+    stats,
   }
 
   function getTitle() {
@@ -106,5 +128,89 @@
     }
 
     return result;
+  }
+
+  function getMedian(binnedDataset, {
+    getValue = (x) => x,
+    getFreq = (x) => x,
+    comparator = (a ,b) => a - b,
+    meanFn = (a, b) => (a + b) / 2,
+  } = { }) {
+    const sortedSet = [...binnedDataset].sort((a, b) => comparator(getValue(a), getValue(b)));
+
+    const sampleSize = sortedSet.reduce((acc, x) => acc + getFreq(x), 0);
+    const midPoint = Math.floor(sampleSize / 2);
+
+    let cumulative = 0;
+    let prevBin = null;
+
+    for (bin of binnedDataset) {
+      const value = getValue(bin);
+      const freq = getFreq(bin);
+
+      if (cumulative + freq > midPoint) {
+        if (sampleSize % 2 === 1) {
+          return bin;
+
+        } else {
+          if (cumulative === midPoint) {
+            return meanFn(prevBin, bin);
+
+          } else {
+            return bin;
+
+          }
+        }
+      }
+
+      cumulative += freq;
+      prevBin = bin;
+    }
+
+    throw Error("Uncaught error in getMedian");
+  }
+
+  function getPeaks(binnedDataset, {
+    comparator = (a ,b) => a - b,
+  } = { }) {
+    const leq = (a, b) => comparator(a, b) <= 0
+    const stack = [];
+    // let buffer = null;
+    let state = 0;
+
+    for (const freq of binnedDataset) {
+      switch (state) {
+        case 0: // starting state
+          stack.push(freq);
+          state = 1;
+          break;
+
+        case 1: // raising edge
+          if (leq(freq, stack.at(-1))) {
+            stack.push(freq);
+            state = 2;
+          } else {
+            stack[stack.length - 1] = freq;
+            state = 1;
+          }
+          break;
+
+        case 2: // falling edge
+          if (leq(freq, stack.at(-1))) {
+            stack[stack.length - 1] = freq
+            state = 2;
+          } else {
+            stack[stack.length - 1] = freq;
+            state = 1;
+          }
+          break;
+      }
+    }
+
+    if (state !== 1) {
+      stack.pop();
+    }
+
+    return stack;
   }
 })();
