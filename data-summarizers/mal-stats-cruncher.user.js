@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.gradescope
-// @version     0.2.1
+// @version     0.2.2
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
@@ -150,7 +150,7 @@
     let cumulative = 0;
     let prevBin = null;
 
-    for (bin of binnedDataset) {
+    for (const bin of binnedDataset) {
       const value = getValue(bin);
       const freq = getFreq(bin);
 
