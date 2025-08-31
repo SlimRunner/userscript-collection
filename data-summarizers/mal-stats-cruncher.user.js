@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.gradescope
-// @version     0.2.2
+// @version     0.2.3
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
 // @match       https://myanimelist.net/anime/*/stats
+// @match       https://myanimelist.net/manga/*/stats
 // @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/data-summarizers/mal-stats-cruncher.user.js
 // @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/data-summarizers/mal-stats-cruncher.user.js
 // ==/UserScript==
