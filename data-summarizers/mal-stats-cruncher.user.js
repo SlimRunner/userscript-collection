@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.gradescope
-// @version     0.2.3
+// @version     0.2.4
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
@@ -119,7 +119,7 @@
   }
 
   function getRatings() {
-    const elements = Array.from(document.querySelectorAll("#score_stats+.score-stats tr"));
+    const elements = Array.from(document.querySelectorAll("table.score-stats tr"));
     let result = null;
 
     if (elements.length === 10) {
