@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
 // @namespace   slidav.myanimelist
-// @version     0.2.4
+// @version     0.2.5
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
 // @grant       none
@@ -210,29 +210,29 @@
     // let buffer = null;
     let state = 0;
 
-    for (const freq of binnedDataset) {
+    for (const bin of binnedDataset) {
       switch (state) {
         case 0: // starting state
-          stack.push(freq);
+          stack.push(bin);
           state = 1;
           break;
 
         case 1: // raising edge
-          if (leq(freq, stack.at(-1))) {
-            stack.push(freq);
+          if (leq(bin, stack.at(-1))) {
+            stack.push(bin);
             state = 2;
           } else {
-            stack[stack.length - 1] = freq;
+            stack[stack.length - 1] = bin;
             state = 1;
           }
           break;
 
         case 2: // falling edge
-          if (leq(freq, stack.at(-1))) {
-            stack[stack.length - 1] = freq
+          if (leq(bin, stack.at(-1))) {
+            stack[stack.length - 1] = bin
             state = 2;
           } else {
-            stack[stack.length - 1] = freq;
+            stack[stack.length - 1] = bin;
             state = 1;
           }
           break;
