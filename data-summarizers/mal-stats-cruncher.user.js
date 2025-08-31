@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        mal-stat-summarizer
-// @namespace   slidav.gradescope
+// @namespace   slidav.myanimelist
 // @version     0.2.4
 // @author      SlimRunner
 // @description Computes useful ratios out of an entry stats.
@@ -14,6 +14,7 @@
 (function () {
   "use strict";
   // --
+  const TYPE_URL = detectType();
   const title = getTitle();
   const summary = getSummary();
   const ratings = getRatings();
@@ -83,6 +84,22 @@
     stats,
   }
 
+  function detectType() {
+    const tagRegex = /(?<=\/)(?:manga|anime)(?=\/)/;
+
+    const tag = tagRegex.exec(window.location.href);
+
+    if (tag.length === 1) {
+      switch (tag[0]) {
+        case "manga": return "manga";
+        case "anime": return "anime";
+        default:
+          throw TypeError("Detected unsupported URL: " + tag[0]);
+      }
+    }
+    throw TypeError("Tag detection in URL failed");
+  }
+
   function getTitle() {
     const elements = document.querySelector(".title-name");
     let result = null;
@@ -95,7 +112,11 @@
   }
 
   function getSummary() {
-    const elements = Array.from(document.querySelectorAll("#summary_stats~div"));
+    const query = new Map([
+      ["manga", "h2:has(~h2+table.score-stats):has(+div)~div"],
+      ["anime", "#summary_stats~div"],
+    ]);
+    const elements = Array.from(document.querySelectorAll(query.get(TYPE_URL)));
     let result = null;
 
     if (elements.length >= 6) {
@@ -119,7 +140,11 @@
   }
 
   function getRatings() {
-    const elements = Array.from(document.querySelectorAll("table.score-stats tr"));
+    const query = new Map([
+      ["manga", "table.score-stats tr"],
+      ["anime", "#score_stats+.score-stats tr"],
+    ]);
+    const elements = Array.from(document.querySelectorAll(query.get(TYPE_URL)));
     let result = null;
 
     if (elements.length === 10) {
