@@ -176,7 +176,7 @@
     let cumulative = 0;
     let prevBin = null;
 
-    for (const bin of binnedDataset) {
+    for (const bin of sortedSet) {
       const value = getValue(bin);
       const freq = getFreq(bin);
 
