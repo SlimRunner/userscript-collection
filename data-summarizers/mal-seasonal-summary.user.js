@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-season-stats
 // @namespace   slidav.myanimelist
-// @version     0.0.2
+// @version     0.0.3
 // @author      SlimRunner
 // @description Aggregates anime metadata counts
 // @grant       none
@@ -41,7 +41,7 @@
 
   const getText = (category, pairs) =>
     Array.from(pairs.get(category))
-      .sort((a, b) => (b[1] !== a[1] ? b[1] - a[1] : a[1].localeCompare(b[1])))
+      .sort((a, b) => (b[1] !== a[1] ? b[1] - a[1] : a[0].localeCompare(b[0])))
       .join("\n");
   window.malSeason = { mappings, getText };
 
