@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-stat-season-stats
 // @namespace   slidav.myanimelist
-// @version     0.0.1
+// @version     0.0.2
 // @author      SlimRunner
 // @description Aggregates anime metadata counts
 // @grant       none
@@ -39,9 +39,9 @@
     }
   });
 
-  const getText = (category) =>
-    Array.from(malSeason.mappings.get(category))
-      .sort((a, b) => b[1] - a[1])
+  const getText = (category, pairs) =>
+    Array.from(pairs.get(category))
+      .sort((a, b) => (b[1] !== a[1] ? b[1] - a[1] : a[1].localeCompare(b[1])))
       .join("\n");
   window.malSeason = { mappings, getText };
 
