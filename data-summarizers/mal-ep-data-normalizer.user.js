@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-ep-data-norm
 // @namespace   slidav.Scripting
-// @version     0.0.1
+// @version     0.0.2
 // @author      SlimRunner (David Flores)
 // @description Processes episode time data into normalized timestamps
 // @grant       none
@@ -44,35 +44,38 @@
       break;
   }
 
-  let maxEp = 0;
-  const columnData = rawData.map((line) => {
-    const [_, num, month, day, year, hour, minute] = line.match(pattern);
-    const epNum = parseInt(num);
-    maxEp = Math.max(maxEp, num.length)
-    return { epNum, month, day, year, hour, minute };
-  });
-
-  const prettyData = columnData.map(e => {
-    const epNum = e.epNum.toString().padStart(maxEp, "0");
-    return (
-      `- ${epNum} ${e.year}-${e.month}-${e.day}T${e.hour}:${e.minute}:00-07:00`
-    );
-  })
-  const textQueue = columnData.map(e => {
-    return (
-      `${e.year}-${e.month}-${e.day}T${e.hour}:${e.minute}:00-07:00` +
-      `\t${e.day}.${e.month}.${e.year}`
-    );
-  })
-
-  const commentWrap = (s) => "```\n" + s + "\n```";
   window.epData = Object.create(null);
-  window.epData.title = title;
-  window.epData.data = columnData;
-  window.epData.getMarkdown = () => {
-    return `## ${title}\n\n${prettyData.join("\n")}`;
-  };
-  window.epData.anidbQueue = () => {
-    return `## ${title}\n\n${textQueue.join("\n")}`;
-  };
+  window.processData = processData;
+  processData(rawData);
+
+  function processData(rawData, name = null) {
+    let maxEp = 0;
+    const columnData = rawData.map((line) => {
+      const [_, num, month, day, year, hour, minute] = line.match(pattern);
+      const epNum = parseInt(num);
+      maxEp = Math.max(maxEp, num.length);
+      return { epNum, month, day, year, hour, minute };
+    });
+
+    const prettyData = columnData.map((e) => {
+      const epNum = e.epNum.toString().padStart(maxEp, "0");
+      return `- ${epNum} ${e.year}-${e.month}-${e.day}T${e.hour}:${e.minute}:00-07:00`;
+    });
+    const textQueue = columnData.map((e) => {
+      return (
+        `${e.year}-${e.month}-${e.day}T${e.hour}:${e.minute}:00-07:00` +
+        `\t${e.day}.${e.month}.${e.year}`
+      );
+    });
+
+    const commentWrap = (s) => "```\n" + s + "\n```";
+    window.epData.title = name ?? title;
+    window.epData.data = columnData;
+    window.epData.getMarkdown = () => {
+      return `## ${title}\n\n${prettyData.join("\n")}`;
+    };
+    window.epData.anidbQueue = () => {
+      return `## ${title}\n\n${textQueue.join("\n")}`;
+    };
+  }
 })();
