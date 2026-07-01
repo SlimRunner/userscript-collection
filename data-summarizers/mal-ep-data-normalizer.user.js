@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-ep-data-norm
 // @namespace   slidav.Scripting
-// @version     0.0.2
+// @version     0.0.3
 // @author      SlimRunner (David Flores)
 // @description Processes episode time data into normalized timestamps
 // @grant       none
@@ -75,7 +75,7 @@
       return `## ${title}\n\n${prettyData.join("\n")}`;
     };
     window.epData.anidbQueue = () => {
-      return `## ${title}\n\n${textQueue.join("\n")}`;
+      return textQueue.join("\n");
     };
   }
 })();
