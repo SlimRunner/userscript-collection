@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name        WanikaniENGBlur
 // @namespace   slidav.Scripting
-// @version     0.0.1
+// @version     0.0.2
 // @author      SlimRunner (David Flores)
 // @description Hides English translations in Wanikani
 // @grant       none
-// @match       https://www.wanikani.com/subject-lessons/*
+// @match       https://www.wanikani.com/*
 // @downloadURL https://github.com/SlimRunner/userscript-collection/raw/main/ui-injection/wanikani-hide-eng.user.js
 // @updateURL   https://github.com/SlimRunner/userscript-collection/raw/main/ui-injection/wanikani-hide-eng.user.js
 // ==/UserScript==
