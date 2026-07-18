@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-ep-data-norm
 // @namespace   slidav.Scripting
-// @version     0.0.5
+// @version     0.0.6
 // @author      SlimRunner (David Flores)
 // @description Processes episode time data into normalized timestamps
 // @grant       none
@@ -58,15 +58,15 @@
     });
     const epDiffs = columnData.map(({ epNum }, i, arr) => {
       if (i) {
-        return epNum - arr[i - 1];
+        return epNum - arr[i - 1].epNum;
       } else {
         return Number.NaN;
       }
     });
 
-    const flags = []
-    for (const diff of epDiffs) {
-      if (Math.abs(maxEp + diff) === 1) {
+    const flags = [];
+    for (const diff of epDiffs.slice(1)) {
+      if (maxEp + diff === 1) {
         // safe because this is a season re-watch (most likely)
       } else if (diff === 1) {
         // also safe because this means you watched the next episode right after
@@ -81,10 +81,11 @@
         flags.push("there is a bad skip forward");
       } else {
         // could be a bad transition; of what type though?
+        flags.push("unexpected ep delta was found");
       }
     }
     for (const f of flags) {
-      console.warn(f);
+      console.debug(`%cWARNING: ${f}`, "background-color:yellow;color:black;");
     }
 
     const prettyData = columnData.map((e) => {
