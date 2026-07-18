@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-ep-data-norm
 // @namespace   slidav.Scripting
-// @version     0.0.3
+// @version     0.0.4
 // @author      SlimRunner (David Flores)
 // @description Processes episode time data into normalized timestamps
 // @grant       none
@@ -56,6 +56,36 @@
       maxEp = Math.max(maxEp, num.length);
       return { epNum, month, day, year, hour, minute };
     });
+    const epDiffs = columnData.map(({ epNum }, i, arr) => {
+      if (i) {
+        return epNum - arr[i - 1];
+      } else {
+        return Number.NaN;
+      }
+    });
+
+    flags = []
+    for (const diff of epDiffs) {
+      if (Math.abs(maxEp + diff) === 1) {
+        // safe because this is a season re-watch (most likely)
+      } else if (diff === 1) {
+        // also safe because this means you watched the next episode right after
+      } else if (diff === -1) {
+        // likely an unintended increase (i.e. 1,2,3,2,3,...)
+        flags.push("there is a false increase");
+      } else if (diff < -1) {
+        // a drop but not enough to return to ep 1 from the season finale
+        flags.push("there is a bad regression");
+      } else if (diff > 1) {
+        // a drop but not enough to return to ep 1 from the season finale
+        flags.push("there is a bad skip forward");
+      } else {
+        // could be a bad transition; of what type though?
+      }
+    }
+    for (const f of flags) {
+      console.warn(f);
+    }
 
     const prettyData = columnData.map((e) => {
       const epNum = e.epNum.toString().padStart(maxEp, "0");
