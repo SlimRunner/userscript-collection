@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-ep-data-norm
 // @namespace   slidav.Scripting
-// @version     0.0.4
+// @version     0.0.5
 // @author      SlimRunner (David Flores)
 // @description Processes episode time data into normalized timestamps
 // @grant       none
@@ -64,7 +64,7 @@
       }
     });
 
-    flags = []
+    const flags = []
     for (const diff of epDiffs) {
       if (Math.abs(maxEp + diff) === 1) {
         // safe because this is a season re-watch (most likely)
