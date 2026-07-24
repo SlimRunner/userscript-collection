@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-ep-data-norm
 // @namespace   slidav.Scripting
-// @version     0.0.6
+// @version     0.0.7
 // @author      SlimRunner (David Flores)
 // @description Processes episode time data into normalized timestamps
 // @grant       none
@@ -13,15 +13,6 @@
 
 (function () {
   "use strict";
-  const title = document
-    .querySelector("form #epdetails #eplayer .normal_header")
-    .textContent.trim();
-  const rawData = Array.from(
-    document.querySelectorAll("form #epdetails #eplayer .spaceit_pad"),
-  )
-    .map((e) => e.textContent.trim())
-    .toReversed();
-
   const siteURL = document.URL;
   const resTag = siteURL.match(/detailed[am]id=/g);
   if (resTag == null || resTag.length < 1) {
@@ -29,20 +20,32 @@
   }
   let resType = resTag[0];
   let pattern = new RegExp();
+  let elemQuery = "";
 
   switch (resType) {
     case "detailedaid=": // anime
       pattern =
         /Ep (\d+), watched on (\d{2})\/(\d{2})\/(\d{4}) at (\d{2}):(\d{2})/;
+      elemQuery = "form #epdetails #eplayer";
       break;
     case "detailedmid=": // manga
       pattern =
         /Chapter (\d+), read on (\d{2})\/(\d{2})\/(\d{4}) at (\d{2}):(\d{2})/;
+      elemQuery = "form #chapdetails #chaplayer";
       break;
     default:
       throw Error("Expected either Manga or Anime types");
       break;
   }
+
+  const title = document
+    .querySelector(elemQuery + " .normal_header")
+    .textContent.trim();
+  const rawData = Array.from(
+    document.querySelectorAll(elemQuery + " .spaceit_pad"),
+  )
+    .map((e) => e.textContent.trim())
+    .toReversed();
 
   window.epData = Object.create(null);
   window.processData = processData;
