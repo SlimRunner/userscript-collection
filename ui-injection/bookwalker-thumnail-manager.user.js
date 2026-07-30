@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.0.2
+// @version     0.0.3
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -54,6 +54,10 @@
       }
     });
   };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    viewEnabler();
+  })
 
   let pageInterval = null;
   const seriesURL = /(?<=bookwalker.com\/)series$/;
