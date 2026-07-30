@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.0.7
+// @version     0.0.8
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -13,49 +13,36 @@
 (function () {
   "use strict";
   const contentClass = ".image-module__6V_xxW__picture";
-  const toggleClass = ":not(.sli-make-visible)";
+  const toggleClass = "";
   const dyanmicCards = [
     ".volume-card-module__XHaErG__root .volume-card-module__XHaErG__bookCoverContainer>.border-box-module__AueLUW__box",
     ".stack-module__28jnBG__stack.stack-module__28jnBG__stack .cart-page-module__2DyzQG__group>.group-module__n4_Xda__group>a",
   ];
-  const customJoin = (sel, common, descendants) =>
-    sel.map((e) => `${e}${common.join("")}${["", ...descendants].join("\n")}`);
+  const customJoin = (sel, common, descendants, pseudo = "") =>
+    sel.map(
+      (e) => `${e}${common.join("")}${["", ...descendants].join(" ")}${pseudo}`,
+    );
 
   addStyleSheet(
     `\
     /* hide thumbs in episode lists */
-    ${customJoin(dyanmicCards, [toggleClass], [contentClass])} {
+    ${customJoin(dyanmicCards, [], [contentClass])} {
+      opacity: 0;
       visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0.5s ease; 
     }
 
-    ${customJoin(dyanmicCards, [toggleClass], [])} {
+    ${customJoin(dyanmicCards, [], [contentClass], ":hover")} {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    ${customJoin(dyanmicCards, [], [])} {
       background: rgba(255 255 255 / 25%);
     }
     `,
     true,
   );
-  const observedClasses = customJoin(dyanmicCards, [], []);
-
-  const buttonQuery = [
-    ".volume-card-module__XHaErG__content",
-    ".stack-module__28jnBG__stack.volume-card-module__XHaErG__actionOrStatus",
-  ].join(" ");
-  const viewEnabler = () => {
-    const episodeCards = document.querySelectorAll(observedClasses);
-    episodeCards.forEach((el) => {
-      const btnCont = el.parentElement.parentElement;
-      const isRead = /\bread\b/i.test(
-        btnCont.querySelector(buttonQuery).textContent.trim(),
-      );
-      if (isRead) {
-        el.classList.add("sli-make-visible");
-      } else if (!isRead) {
-        el.classList.remove("sli-make-visible");
-      }
-    });
-  };
-
-  setTimeout(() => {viewEnabler();}, 200);
 
   function addStyleSheet(rules, dedent = false) {
     if (dedent) {
