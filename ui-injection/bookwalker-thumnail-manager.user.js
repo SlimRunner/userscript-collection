@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.0.4
+// @version     0.0.5
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -46,7 +46,6 @@
       const isRead = /\bread\b/i.test(
         btnCont.querySelector(buttonQuery).textContent.trim(),
       );
-      console.log(isRead);
       if (isRead) {
         el.classList.add("sli-make-visible");
       } else if (!isRead) {
