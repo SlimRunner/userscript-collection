@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.0.1
+// @version     0.0.2
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -55,7 +55,21 @@
     });
   };
 
-  viewEnabler();
+  let pageInterval = null;
+  const seriesURL = /(?<=bookwalker.com\/)series$/;
+  const mtconfig = { childList: true, subtree: true };
+  const enableViewInterval = (mutList, obs) => {
+    const pageMatches = seriesURL.test(location.href);
+    if (pageMatches && pageInterval === null) {
+      pageInterval = setInterval(viewEnabler, 500);
+    } else if (!pageMatches && pageInterval !== null) {
+      clearInterval(pageInterval);
+      pageInterval = null;
+    }
+  };
+
+  const pgObs = new MutationObserver(enableViewInterval);
+  pgObs.observe(document, mtconfig);
 
   function addStyleSheet(rules, dedent = false) {
     if (dedent) {
