@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.0.8
+// @version     0.0.9
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -28,13 +28,11 @@
     /* hide thumbs in episode lists */
     ${customJoin(dyanmicCards, [], [contentClass])} {
       opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.5s ease, visibility 0.5s ease; 
+      transition: opacity 0.25s ease; 
     }
 
     ${customJoin(dyanmicCards, [], [contentClass], ":hover")} {
       opacity: 1;
-      visibility: visible;
     }
 
     ${customJoin(dyanmicCards, [], [])} {
