@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.0.9
+// @version     0.0.10
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -15,7 +15,7 @@
   const contentClass = ".image-module__6V_xxW__picture";
   const toggleClass = "";
   const dyanmicCards = [
-    ".volume-card-module__XHaErG__root .volume-card-module__XHaErG__bookCoverContainer>.border-box-module__AueLUW__box",
+    ".stack-module__28jnBG__stack .book-detail-page-module__-_bpFq__volumeCards a>.border-box-module__AueLUW__box",
     ".stack-module__28jnBG__stack.stack-module__28jnBG__stack .cart-page-module__2DyzQG__group>.group-module__n4_Xda__group>a",
   ];
   const customJoin = (sel, common, descendants, pseudo = "") =>
