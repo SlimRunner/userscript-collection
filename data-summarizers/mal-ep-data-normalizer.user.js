@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        mal-ep-data-norm
 // @namespace   slidav.Scripting
-// @version     0.0.8
+// @version     0.0.9
 // @author      SlimRunner (David Flores)
 // @description Processes episode time data into normalized timestamps
 // @grant       none
@@ -118,6 +118,15 @@
         const { epNum, year, month, day, hour, minute } = e;
 
         return `${index} ${year}-${month}-${day}T${hour}:${minute}:00-07:00`;
+      })
+      .join("\n");
+    window.epData.enumDataTagged = columnData
+      .map((e, i, arr) => {
+        const padSize = arr.length.toString().length;
+        const index = (i + 1).toString().padStart(padSize, "0");
+        const { epNum, year, month, day, hour, minute } = e;
+
+        return `${index} ${year}-${month}-${day}T${hour}:${minute}:00-07:00 "${epNum}"`;
       })
       .join("\n");
   }
