@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        WanikaniENGBlur
 // @namespace   slidav.Scripting
-// @version     0.0.2
+// @version     0.0.3
 // @author      SlimRunner (David Flores)
 // @description Hides English translations in Wanikani
 // @grant       none
@@ -15,11 +15,16 @@
 
   addStyleSheet(
     `\
-    .context-sentences .wk-text:not([lang]) {
+    .context-sentences .wk-text:not([lang]),
+    .subject-character-grid__item .subject-character__content .subject-character__info .subject-character__reading,
+    .subject-character-grid__item .subject-character__content .subject-character__info .subject-character__meaning {
       filter: blur(5px);
+      transition: filter 0.25s ease;
     }
 
-    .context-sentences .wk-text:hover {
+    .context-sentences .wk-text:hover,
+    .subject-character-grid__item .subject-character__content:hover .subject-character__info .subject-character__reading,
+    .subject-character-grid__item .subject-character__content:hover .subject-character__info .subject-character__meaning {
       filter: blur(0);
     }
     `,
