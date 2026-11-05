@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.1.0
+// @version     0.2.0
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -15,10 +15,18 @@
   const contentClass = ".image-module__6V_xxW__picture";
   const toggleClass = "";
   const dyanmicCards = [
+    // library > history
     ".stack-module__28jnBG__stack .book-detail-page-module__-_bpFq__volumeCards a>.border-box-module__AueLUW__box",
+    // purchase cart
     ".stack-module__28jnBG__stack.stack-module__28jnBG__stack .cart-page-module__2DyzQG__group>.group-module__n4_Xda__group>a",
+    // checkout page
     ".stack-module__28jnBG__stack.stack-module__28jnBG__stack .checkout-complete-page-module__Nxdpqa__bookGrid>.book-card-frame-module__MeOSPq__root>a",
+    // library > puchased
     ".stack-module__28jnBG__stack .book-card-list-module__3dvkgq__grid>.book-card-frame-module__YVOm5q__root a>div",
+    // library > collections
+    ".selection-wrapper-module__0QVF8W__root .carousel-module__XNE_Fq__root .book-card-frame-module__YVOm5q__root a",
+    // library > upcoming
+    ".stack-module__28jnBG__stack .stack-module__sjkZTq__xs .carousel-module__XNE_Fq__root a>.border-box-module__AueLUW__box",
   ];
   const customJoin = (sel, common, descendants, pseudo = "") =>
     sel
