@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.0.11
+// @version     0.1.0
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -18,6 +18,7 @@
     ".stack-module__28jnBG__stack .book-detail-page-module__-_bpFq__volumeCards a>.border-box-module__AueLUW__box",
     ".stack-module__28jnBG__stack.stack-module__28jnBG__stack .cart-page-module__2DyzQG__group>.group-module__n4_Xda__group>a",
     ".stack-module__28jnBG__stack.stack-module__28jnBG__stack .checkout-complete-page-module__Nxdpqa__bookGrid>.book-card-frame-module__MeOSPq__root>a",
+    ".stack-module__28jnBG__stack .book-card-list-module__3dvkgq__grid>.book-card-frame-module__YVOm5q__root a>div",
   ];
   const customJoin = (sel, common, descendants, pseudo = "") =>
     sel
