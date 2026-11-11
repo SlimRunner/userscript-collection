@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.4.0
+// @version     0.4.1
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -46,7 +46,7 @@
     if (styleSheet) return;
 
     const imgSelector = ">source+source+img";
-    const baseSelectors = ["picture.dKTvOq_cover"];
+    const baseSelectors = ["a div div picture.dKTvOq_cover"];
     const customJoin = (sel, common, pseudo = "") =>
       sel.map((e) => `${e}${common.join("")}${pseudo}`).join(",\n");
 
