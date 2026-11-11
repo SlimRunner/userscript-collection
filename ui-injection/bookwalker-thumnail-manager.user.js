@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.3.0
+// @version     0.4.0
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -12,41 +12,63 @@
 
 (function () {
   "use strict";
-  const domMatch = /(?<=https\:\/\/bookwalker\.com\/).*/g;
-  const [urlPath, ..._] = domMatch.exec(location.href);
+  const excludedPaths = new Set(["/"]);
+  const cssID = "thumb-conceal";
 
-  switch (urlPath) {
-    case "":
-      console.log("thumbnail disabled on this path.");
+  applyStyles();
+
+  // *********************************************
+  // this block was created by AI
+  const originalPushState = history.pushState;
+  history.pushState = function () {
+    originalPushState.apply(this, arguments);
+    window.dispatchEvent(new Event("locationchange"));
+  };
+
+  const originalReplaceState = history.replaceState;
+  history.replaceState = function () {
+    originalReplaceState.apply(this, arguments);
+    window.dispatchEvent(new Event("locationchange"));
+  };
+
+  window.addEventListener("popstate", applyStyles);
+  window.addEventListener("locationchange", applyStyles);
+  // *********************************************
+
+  function applyStyles() {
+    const styleSheet = document.getElementById(cssID);
+
+    if (excludedPaths.has(window.location.pathname)) {
+      if (styleSheet) styleSheet.remove();
       return;
+    }
 
-    default:
-      break;
+    if (styleSheet) return;
+
+    const imgSelector = ">source+source+img";
+    const baseSelectors = ["picture.dKTvOq_cover"];
+    const customJoin = (sel, common, pseudo = "") =>
+      sel.map((e) => `${e}${common.join("")}${pseudo}`).join(",\n");
+
+    addStyleSheet(
+      `\
+      /* hide thumbs in episode lists */
+      ${customJoin(baseSelectors, [imgSelector])} {
+        opacity: 0;
+        transition: opacity 0.25s ease; 
+      }
+
+      ${customJoin(baseSelectors, [imgSelector], ":hover")} {
+        opacity: 1;
+      }
+
+      ${customJoin(baseSelectors, [])} {
+        background: rgba(255 255 255 / 15%);
+      }
+      `,
+      true,
+    );
   }
-
-  const imgSelector = ">source+source+img";
-  const baseSelectors = ["picture.dKTvOq_cover"];
-  const customJoin = (sel, common, pseudo = "") =>
-    sel.map((e) => `${e}${common.join("")}${pseudo}`).join(",\n");
-
-  addStyleSheet(
-    `\
-    /* hide thumbs in episode lists */
-    ${customJoin(baseSelectors, [imgSelector])} {
-      opacity: 0;
-      transition: opacity 0.25s ease; 
-    }
-
-    ${customJoin(baseSelectors, [imgSelector], ":hover")} {
-      opacity: 1;
-    }
-
-    ${customJoin(baseSelectors, [])} {
-      background: rgba(255 255 255 / 15%);
-    }
-    `,
-    true,
-  );
 
   function addStyleSheet(rules, dedent = false) {
     if (dedent) {
@@ -62,6 +84,7 @@
     }
     const style = document.createElement("style");
     style.textContent = rules;
+    style.id = cssID;
     document.head.append(style);
     return style;
   }
