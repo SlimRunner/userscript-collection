@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.2.0
+// @version     0.3.0
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -12,44 +12,37 @@
 
 (function () {
   "use strict";
-  const contentClass = ".image-module__6V_xxW__picture";
-  const toggleClass = "";
-  const dyanmicCards = [
-    // library > history
-    ".stack-module__28jnBG__stack .book-detail-page-module__-_bpFq__volumeCards a>.border-box-module__AueLUW__box",
-    // purchase cart
-    ".stack-module__28jnBG__stack.stack-module__28jnBG__stack .cart-page-module__2DyzQG__group>.group-module__n4_Xda__group>a",
-    // checkout page
-    ".stack-module__28jnBG__stack.stack-module__28jnBG__stack .checkout-complete-page-module__Nxdpqa__bookGrid>.book-card-frame-module__MeOSPq__root>a",
-    // library > puchased
-    ".stack-module__28jnBG__stack .book-card-list-module__3dvkgq__grid>.book-card-frame-module__YVOm5q__root a>div",
-    // library > collections
-    ".selection-wrapper-module__0QVF8W__root .carousel-module__XNE_Fq__root .book-card-frame-module__YVOm5q__root a",
-    // library > upcoming
-    ".stack-module__28jnBG__stack .stack-module__sjkZTq__xs .carousel-module__XNE_Fq__root a>.border-box-module__AueLUW__box",
-  ];
-  const customJoin = (sel, common, descendants, pseudo = "") =>
-    sel
-      .map(
-        (e) =>
-          `${e}${common.join("")}${["", ...descendants].join(" ")}${pseudo}`,
-      )
-      .join(",\n");
+  const domMatch = /(?<=https\:\/\/bookwalker\.com\/).*/g;
+  const [urlPath, ..._] = domMatch.exec(location.href);
+
+  switch (urlPath) {
+    case "":
+      console.log("thumbnail disabled on this path.");
+      return;
+
+    default:
+      break;
+  }
+
+  const imgSelector = ">source+source+img";
+  const baseSelectors = ["picture.dKTvOq_cover"];
+  const customJoin = (sel, common, pseudo = "") =>
+    sel.map((e) => `${e}${common.join("")}${pseudo}`).join(",\n");
 
   addStyleSheet(
     `\
     /* hide thumbs in episode lists */
-    ${customJoin(dyanmicCards, [], [contentClass])} {
+    ${customJoin(baseSelectors, [imgSelector])} {
       opacity: 0;
       transition: opacity 0.25s ease; 
     }
 
-    ${customJoin(dyanmicCards, [], [contentClass], ":hover")} {
+    ${customJoin(baseSelectors, [imgSelector], ":hover")} {
       opacity: 1;
     }
 
-    ${customJoin(dyanmicCards, [], [])} {
-      background: rgba(255 255 255 / 25%);
+    ${customJoin(baseSelectors, [])} {
+      background: rgba(255 255 255 / 15%);
     }
     `,
     true,
