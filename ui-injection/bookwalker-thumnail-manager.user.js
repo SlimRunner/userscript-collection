@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.5.1
+// @version     0.5.2
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -76,6 +76,8 @@
 
   /* tests
   console.table([
+    prefixMatch("/", "/") === true,
+    prefixMatch("/", "/a/b/c/d") === false,
     prefixMatch("/a/b/c", "/a/**") === true,
     prefixMatch("/a/b/c", "/a/b/**") === true,
     prefixMatch("/a/b", "/a/b/**") === false,
@@ -99,14 +101,17 @@
     const patternParts = pattern.split("/").filter(Boolean);
 
     let partsMatch = true;
-    let lenMatches = false;
+    let lenMatches = patternParts.length === pathParts.length;
     for (let i = 0; partsMatch && i < patternParts.length; i++) {
       const part = patternParts[i];
       if (partsMatch && part === "**") {
         lenMatches = i + 1 <= pathParts.length;
         break;
       }
-      partsMatch = partsMatch && (part === "*" || part === pathParts[i]);
+      partsMatch =
+        partsMatch &&
+        i < pathParts.length &&
+        (part === "*" || part === pathParts[i]);
       lenMatches = i + 1 === pathParts.length;
     }
 
