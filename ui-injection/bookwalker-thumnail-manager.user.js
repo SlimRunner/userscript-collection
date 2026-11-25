@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.5.0
+// @version     0.5.1
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -12,7 +12,7 @@
 
 (function () {
   "use strict";
-  const excludedPaths = ["/", "/library/collections/*"];
+  const excludedPaths = ["/", "/library/collections/*", "/library/history"];
   const cssID = "thumb-conceal";
 
   applyStyles();
