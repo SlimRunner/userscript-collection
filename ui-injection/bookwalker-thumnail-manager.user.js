@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        BookwalkerCoverThumbnailBlocker
 // @namespace   slidav.Scripting
-// @version     0.4.1
+// @version     0.5.0
 // @author      SlimRunner
 // @description Hides thumbnails of non-read books in bookwalker
 // @grant       none
@@ -12,7 +12,7 @@
 
 (function () {
   "use strict";
-  const excludedPaths = new Set(["/"]);
+  const excludedPaths = ["/", "/library/collections/*"];
   const cssID = "thumb-conceal";
 
   applyStyles();
@@ -38,7 +38,11 @@
   function applyStyles() {
     const styleSheet = document.getElementById(cssID);
 
-    if (excludedPaths.has(window.location.pathname)) {
+    if (
+      excludedPaths.some((pattern) =>
+        prefixMatch(window.location.pathname, pattern),
+      )
+    ) {
       if (styleSheet) styleSheet.remove();
       return;
     }
@@ -68,6 +72,45 @@
       `,
       true,
     );
+  }
+
+  /* tests
+  console.table([
+    prefixMatch("/a/b/c", "/a/**") === true,
+    prefixMatch("/a/b/c", "/a/b/**") === true,
+    prefixMatch("/a/b", "/a/b/**") === false,
+    prefixMatch("/a/b", "/a/b/*") === false,
+    prefixMatch("/a/b/c", "/a/*") === false,
+    prefixMatch("/a/b/c", "/a/b/*") === true,
+    prefixMatch("/a/b/c", "/a/b/c") === true,
+    prefixMatch("/a/b/c/d", "/a/b/c") === false,
+    prefixMatch("/a/b/c", "/a/b/c/d") === false,
+  ]);
+  */
+
+  /**
+   *
+   * @param {String} path
+   * @param {String} pattern
+   * @returns
+   */
+  function prefixMatch(path, pattern) {
+    const pathParts = path.split("/").filter(Boolean);
+    const patternParts = pattern.split("/").filter(Boolean);
+
+    let partsMatch = true;
+    let lenMatches = false;
+    for (let i = 0; partsMatch && i < patternParts.length; i++) {
+      const part = patternParts[i];
+      if (partsMatch && part === "**") {
+        lenMatches = i + 1 <= pathParts.length;
+        break;
+      }
+      partsMatch = partsMatch && (part === "*" || part === pathParts[i]);
+      lenMatches = i + 1 === pathParts.length;
+    }
+
+    return partsMatch && lenMatches;
   }
 
   function addStyleSheet(rules, dedent = false) {
