@@ -56,7 +56,6 @@
 
     addStyleSheet(
       `\
-      /* hide thumbs in episode lists */
       ${customJoin(baseSelectors, [imgSelector])} {
         opacity: 0;
         transition: opacity 0.25s ease; 
@@ -74,27 +73,11 @@
     );
   }
 
-  /* tests
-  console.table([
-    prefixMatch("/", "/") === true,
-    prefixMatch("/", "/a/b/c/d") === false,
-    prefixMatch("/a/b/c", "/a/**") === true,
-    prefixMatch("/a/b/c", "/a/b/**") === true,
-    prefixMatch("/a/b", "/a/b/**") === false,
-    prefixMatch("/a/b", "/a/b/*") === false,
-    prefixMatch("/a/b/c", "/a/*") === false,
-    prefixMatch("/a/b/c", "/a/b/*") === true,
-    prefixMatch("/a/b/c", "/a/b/c") === true,
-    prefixMatch("/a/b/c/d", "/a/b/c") === false,
-    prefixMatch("/a/b/c", "/a/b/c/d") === false,
-  ]);
-  */
-
   /**
-   *
-   * @param {String} path
-   * @param {String} pattern
-   * @returns
+   * Match prefix path against pattern
+   * @param {String} path given path
+   * @param {String} pattern matching pattern
+   * @returns {Boolean}
    */
   function prefixMatch(path, pattern) {
     const pathParts = path.split("/").filter(Boolean);
@@ -118,6 +101,12 @@
     return partsMatch && lenMatches;
   }
 
+  /**
+   * Insert given rules into the document head as as style element
+   * @param {String} rules css
+   * @param {Boolean} dedent if true, indentation will be removed
+   * @returns {HTMLStyleElement} constructed style element
+   */
   function addStyleSheet(rules, dedent = false) {
     if (dedent) {
       const TAB = /^\t/.test(rules) ? "\t" : " ";
